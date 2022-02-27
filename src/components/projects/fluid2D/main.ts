@@ -1,7 +1,8 @@
 import WebGLBase from "src/components/lib/webgl/main";
 import { Texture, Vector2 } from "three";
-import { ExternalForceManager } from "./ExternalForceManager";
+import { ExternalForceManager } from "./_externalForceManager";
 import AdvectionPass from "./passes/advectionPass";
+import CompositionPass from "./passes/compositionPass";
 import ExternalForcePass from "./passes/externalForcePass";
 import Pass from "./passes/pass";
 import VelocityInitPass from "./passes/velocityInitPass";
@@ -18,6 +19,7 @@ export default class Main extends WebGLBase {
 	private _externalForceManager?: ExternalForceManager
 	private _externalForcePass?: Pass
 	private _advectionPass?: Pass
+	private _compositionPass?: Pass
 	private _velocityTarget?: RenderTarget
 
 	private get _resolution(): Vector2 {
@@ -45,7 +47,10 @@ export default class Main extends WebGLBase {
 		this._renderer!.setSize(innerWidth, innerHeight)
 		this._renderer!.setPixelRatio(devicePixelRatio)
 
-		this._externalForceManager = new ExternalForceManager(this._renderer!.domElement, this._resolution)
+		this._externalForceManager = new ExternalForceManager(
+			this._renderer!.domElement,
+			this._resolution.x / this._resolution.y
+		)
 
 		this._initRenderTargets()
 	}
@@ -64,7 +69,10 @@ export default class Main extends WebGLBase {
 
 	private _initRenderTargets(): void {
 		// 外圧パス
-		this._externalForcePass = new ExternalForcePass(this._resolution.x / this._resolution.y, this._config.radius)
+		this._externalForcePass = new ExternalForcePass(
+			this._resolution.x / this._resolution.y,
+			this._config.radius
+		)
 
 		// 速度初期化用パス
 		const velInitTarget = new RenderTarget(this._resolution)
@@ -75,6 +83,9 @@ export default class Main extends WebGLBase {
 		// 移流パス
 		this._advectionPass = new AdvectionPass(initialVelTexture, initialVelTexture, 0)
 
+		// 最終描画用パス
+		this._compositionPass = new CompositionPass()
+
 		// 速度保存用ターゲット
 		this._velocityTarget = new RenderTarget(this._resolution, 2)
 	}
@@ -82,26 +93,33 @@ export default class Main extends WebGLBase {
 	private _updateRenderTargets(): void {
 		// 移流を計算
 		this._advectionPass?.update({timeDelta: this._config.dt})
-		let velTexture = this._velocityTarget!.set(this._renderer!)
+		let velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
 		if(this._externalForceManager!.inputTouches.length > 0) {
 			this._externalForcePass?.update({
-				input: this._externalForceManager?.inputTouches,
+				input: this._externalForceManager?.inputTouches[0].input,
 				radius: this._config.radius,
-				velocity: velTexture
+				velocity: velTex
 			})
-			velTexture = this._velocityTarget!.set(this._renderer!)
+			velTex = this._velocityTarget!.set(this._renderer!)
 			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
 		}
 
 		// 移流を再度計算 上でいろいろ計算された結果を改めて移流パスに書いてる？
 		this._advectionPass!.update({
-			inputTexture: velTexture,
-			velocity: velTexture
+			inputTexture: velTex,
+			velocity: velTex
 		})
 
+		// 最終描画
+		this._renderer!.setRenderTarget(null)
+		const visualization = velTex
+		this._compositionPass?.update({
+			colorBuffer: visualization
+		})
+		this._renderer!.render(this._compositionPass!.scene!, this._camera!)
 	}
 
 	/**

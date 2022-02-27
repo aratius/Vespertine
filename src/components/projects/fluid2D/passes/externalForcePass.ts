@@ -2,6 +2,13 @@ import { BufferAttribute, BufferGeometry, Mesh, RawShaderMaterial, Scene, Textur
 import glslify from "../utis/glslify";
 import Pass from "./pass";
 
+interface Uniforms {
+	velocity: Texture
+	input: Vector4,
+	aspect: number,
+	radius: number,
+}
+
 /**
  * 外圧パス
  * とりあえずマウスに一点のみにする
@@ -97,7 +104,7 @@ export default class ExternalForcePass implements Pass {
 		this.scene.add(mesh)
 	}
 
-	update(uniforms: any): void {
+	update(uniforms: Uniforms): void {
 		// アスペクト比
 		if(uniforms.aspect !== undefined) {
 			this.material!.uniforms.u_aspect.value = uniforms.aspect

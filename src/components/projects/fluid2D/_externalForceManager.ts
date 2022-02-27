@@ -8,14 +8,14 @@ export interface ITouchInput {
 export class ExternalForceManager {
 
   public inputTouches: ITouchInput[] = []
-  public resolution: Vector2 = new Vector2(0, 0)
+  public aspect: number
 
-  constructor(canvas: HTMLCanvasElement, resolution: Vector2) {
-    this.resolution = resolution
+  constructor(canvas: HTMLCanvasElement, resolution: number) {
+    this.aspect = resolution
 
     canvas.addEventListener("mousedown", (event: MouseEvent) => {
       if (event.button === 0) {
-        const x = (event.clientX / canvas.clientWidth) * this.resolution.x;
+        const x = (event.clientX / canvas.clientWidth) * this.aspect;
         const y = 1.0 - (event.clientY + window.scrollY) / canvas.clientHeight;
         this.inputTouches.push({
           id: "mouse",
@@ -25,7 +25,7 @@ export class ExternalForceManager {
     });
     canvas.addEventListener("mousemove", (event: MouseEvent) => {
       if (this.inputTouches.length > 0) {
-        const x = (event.clientX / canvas.clientWidth) * this.resolution.x;
+        const x = (event.clientX / canvas.clientWidth) * this.aspect;
         const y = 1.0 - (event.clientY + window.scrollY) / canvas.clientHeight;
         // 普通に前回の値と比べて速度を取得している模様
         const z = x - this.inputTouches[0].input.x
@@ -41,7 +41,7 @@ export class ExternalForceManager {
 
     canvas.addEventListener("touchstart", (event: TouchEvent) => {
       for (const touch of event.changedTouches) {
-        const x = (touch.clientX / canvas.clientWidth) * this.resolution.x;
+        const x = (touch.clientX / canvas.clientWidth) * this.aspect;
         const y = 1.0 - (touch.clientY + window.scrollY) / canvas.clientHeight;
         this.inputTouches.push({
           id: touch.identifier,
@@ -57,7 +57,7 @@ export class ExternalForceManager {
           return value.id === touch.identifier;
         });
         if (registeredTouch !== undefined) {
-          const x = (touch.clientX / canvas.clientWidth) * this.resolution.x;
+          const x = (touch.clientX / canvas.clientWidth) * this.aspect;
           const y = 1.0 - (touch.clientY + window.scrollY) / canvas.clientHeight;
           registeredTouch.input
             .setZ(x - registeredTouch.input.x)
