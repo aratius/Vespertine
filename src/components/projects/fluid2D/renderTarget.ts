@@ -56,7 +56,7 @@ export default class RenderTarget {
 	 * @param renderer
 	 */
 	public set(renderer: WebGLRenderer): Texture {
-		const buffer = this._buffers[this._index]
+		const buffer = this._buffers[this._index++]
 		renderer.setRenderTarget(buffer.target)
 		this._index %= this._buffers.length
 		return buffer.target.texture

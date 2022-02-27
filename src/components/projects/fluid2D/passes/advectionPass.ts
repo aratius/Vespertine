@@ -39,14 +39,14 @@ export default class AdvectionPass implements Pass {
 				u_time_delta: new Uniform(0.),
 				u_input_texture: new Uniform(initialValue),
 				u_velocity: new Uniform(initialVelocity),
-				decay: new Uniform(decay)
+				u_decay: new Uniform(decay)
 			},
 			vertexShader: glslify`
 				attribute vec2 position;
 				varying vec2 v_uv;
 
 				void main() {
-					v_uv = positoin * 0.5 + 0.5;
+					v_uv = position * 0.5 + 0.5;
 					gl_Position = vec4(position, 0., 1.);
 				}
 			`,
@@ -54,11 +54,11 @@ export default class AdvectionPass implements Pass {
 				precision highp float;
 				precision highp int;
 
-				varying v_uv;
-				uinform float u_time_delta;
+				varying vec2 v_uv;
+				uniform float u_time_delta;
 				uniform sampler2D u_input_texture;
 				uniform sampler2D u_velocity;
-				uinform float decay;
+				uniform float u_decay;
 
 				void main() {
 					// 前回のテクスチャ情報 (バックトレース)
@@ -66,7 +66,7 @@ export default class AdvectionPass implements Pass {
 					// 前回のuv情報でテクスチャを描画しつつ減衰係数を掛ける？
 					// NOTE: そのテクスチャの次の速度を決める？
 					// NOTE: 今回のテクスチャを前回のUVでtexture2Dしている？ てことは次回の値が予測できるのか？？
-					gl_FragColor = texture2D(u_input_texture, prev_uv) * (1. - decay);
+					gl_FragColor = texture2D(u_input_texture, prev_uv) * (1. - u_decay);
 				}
 			`,
 			depthTest: false,

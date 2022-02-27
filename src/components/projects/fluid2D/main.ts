@@ -80,11 +80,9 @@ export default class Main extends WebGLBase {
 	}
 
 	private _updateRenderTargets(): void {
-		let velTexture = this._velocityTarget!.set(this._renderer!)
-
-		// 移入を計算
+		// 移流を計算
 		this._advectionPass?.update({timeDelta: this._config.dt})
-		velTexture = this._velocityTarget!.set(this._renderer!)
+		let velTexture = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
@@ -98,7 +96,7 @@ export default class Main extends WebGLBase {
 			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
 		}
 
-		// 移入を再度計算 上でいろいろ計算された結果を改めて移入パスに書いてる？
+		// 移流を再度計算 上でいろいろ計算された結果を改めて移流パスに書いてる？
 		this._advectionPass!.update({
 			inputTexture: velTexture,
 			velocity: velTexture
