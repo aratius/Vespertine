@@ -4,6 +4,6 @@ export default interface Pass {
 
 	scene?: Scene
 	material?: RawShaderMaterial
-	update(uniforms: Object): void
+	update(uniforms: any): void
 
 }

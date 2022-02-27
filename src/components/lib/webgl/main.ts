@@ -35,8 +35,8 @@ export default class WebGLBase {
 	constructor(canvas: HTMLCanvasElement, options: WebGLOptions = {}) {
 		this._canvas = canvas
 		this._settings = {
+			...options,
 			...WebGLBase._defaultOptions,
-			...options
 		}
 		if(this._settings.stats) {
 			this._stats = new Stats()
