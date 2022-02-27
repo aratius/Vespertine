@@ -14,8 +14,8 @@ export default class Main extends WebGLBase {
 		radius: 0.25
 	}
 	private _externalForceManager?: ExternalForceManager
-	private _externalForceTarget?: RenderTarget
 	private _externalForcePass?: Pass
+	private _velocityTarget?: RenderTarget
 
 	private get _resolution(): Vector2 {
 		return new Vector2(this._config.scale * innerWidth, this._config.scale * innerHeight)
@@ -61,7 +61,6 @@ export default class Main extends WebGLBase {
 
 	private _initRenderTargets(): void {
 		// 外圧パス
-		this._externalForceTarget = new RenderTarget(this._resolution)
 		this._externalForcePass = new ExternalForcePass(this._resolution.x / this._resolution.y, this._config.radius)
 
 		// 速度初期化用パス
@@ -70,17 +69,25 @@ export default class Main extends WebGLBase {
 		velInitTarget.set(this._renderer!)
 		this._renderer?.render(velInitPass.scene!, this._camera!)
 
+		// 速度保存用ターゲット
+		this._velocityTarget = new RenderTarget(this._resolution, 2)
+
 		// 移流パス
 	}
 
 	private _updateRenderTargets(): void {
+		let velTexture = this._velocityTarget!.set(this._renderer!)
 
-		this._externalForcePass?.update({
-			input: this._externalForceManager?.inputTouches,
-			radius: this._config.radius,
-			velocity: new Texture()
-		})
-		this._preview(this._externalForcePass!)
+		// 外圧を加える
+		if(this._externalForceManager!.inputTouches.length > 0) {
+			this._externalForcePass?.update({
+				input: this._externalForceManager?.inputTouches,
+				radius: this._config.radius,
+				velocity: velTexture
+			})
+			velTexture = this._velocityTarget!.set(this._renderer!)
+			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
+		}
 	}
 
 	/**

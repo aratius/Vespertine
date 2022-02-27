@@ -1,4 +1,5 @@
 import {
+	HalfFloatType,
 	LinearFilter,
 	NearestFilter,
 	RGBAFormat,
@@ -8,6 +9,11 @@ import {
 	WebGLRenderTarget
 } from "three";
 
+interface IBuffer {
+	target: WebGLRenderTarget;
+	needsResize: boolean;
+}
+
 /**
  * オフスクリーンレンダリングのターゲットになるテクスチャ
  * あくまで使われるテクスチャでしかないのでこの中でSceneとかMaterialを持つことはしない
@@ -15,36 +21,49 @@ import {
  */
 export default class RenderTarget {
 
-	private _renderTarget: WebGLRenderTarget | null = null
+	private _buffers: IBuffer[] = []
+	private _index: number = 0
 
-	constructor(size: Vector2) {
-		this._renderTarget = new WebGLRenderTarget(size.x, size.y, {
-			minFilter: LinearFilter,
-			magFilter: NearestFilter,
-			format: RGBAFormat
-		})
-	}
+	constructor(
+		readonly resolution: Vector2,
+		readonly nBuffers: number = 1,  // テクスチャを交互に入れ替えるための数
+		readonly format: number = RGBAFormat,
+		readonly type: number = HalfFloatType
+	) {
+		this._buffers = [
+			{
+				target: new WebGLRenderTarget(resolution.x, resolution.y, {
+					format,
+					type,
+					depthBuffer: false,
+					stencilBuffer: false
+				}),
+				needsResize: false
+			}
+		]
 
-	/**
-	 * テクスチャ
-	 */
-	public get texture(): Texture {
-		return this._renderTarget!.texture
-	}
-
-	public deInit(): void {
+		// 指定の個数分複製
+		for(let i = 1; i < nBuffers; ++i) {
+			this._buffers[i] = {
+				target: this._buffers[0].target.clone(),
+				needsResize: false
+			}
+		}
 	}
 
 	/**
 	 * レンダリング
 	 * @param renderer
 	 */
-	public set(renderer: WebGLRenderer): void {
-		renderer.setRenderTarget(this._renderTarget)
+	public set(renderer: WebGLRenderer): Texture {
+		const buffer = this._buffers[this._index]
+		renderer.setRenderTarget(buffer.target)
+		this._index %= this._buffers.length
+		return buffer.target.texture
 	}
 
 	public resize(size: Vector2): void {
-		this._renderTarget!.setSize(size.x, size.y)
+		// NOTE: リサイズ処理は最低限実装できてから
 	}
 
 }
