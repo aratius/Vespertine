@@ -1,6 +1,7 @@
 import WebGLBase from "src/components/lib/webgl/main";
 import { Texture, Vector2 } from "three";
 import { ExternalForceManager } from "./ExternalForceManager";
+import AdvectionPass from "./passes/advectionPass";
 import ExternalForcePass from "./passes/externalForcePass";
 import Pass from "./passes/pass";
 import VelocityInitPass from "./passes/velocityInitPass";
@@ -11,10 +12,12 @@ export default class Main extends WebGLBase {
 	public _projectName: string = "fluid2D"
 	private _config = {
 		scale: 0.5,
-		radius: 0.25
+		radius: 0.25,
+		dt: 1/60
 	}
 	private _externalForceManager?: ExternalForceManager
 	private _externalForcePass?: Pass
+	private _advectionPass?: Pass
 	private _velocityTarget?: RenderTarget
 
 	private get _resolution(): Vector2 {
@@ -66,17 +69,23 @@ export default class Main extends WebGLBase {
 		// 速度初期化用パス
 		const velInitTarget = new RenderTarget(this._resolution)
 		const velInitPass = new VelocityInitPass()
-		velInitTarget.set(this._renderer!)
+		const initialVelTexture = velInitTarget.set(this._renderer!)
 		this._renderer?.render(velInitPass.scene!, this._camera!)
+
+		// 移流パス
+		this._advectionPass = new AdvectionPass(initialVelTexture, initialVelTexture, 0)
 
 		// 速度保存用ターゲット
 		this._velocityTarget = new RenderTarget(this._resolution, 2)
-
-		// 移流パス
 	}
 
 	private _updateRenderTargets(): void {
 		let velTexture = this._velocityTarget!.set(this._renderer!)
+
+		// 移入を計算
+		this._advectionPass?.update({timeDelta: this._config.dt})
+		velTexture = this._velocityTarget!.set(this._renderer!)
+		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
 		if(this._externalForceManager!.inputTouches.length > 0) {
@@ -88,6 +97,13 @@ export default class Main extends WebGLBase {
 			velTexture = this._velocityTarget!.set(this._renderer!)
 			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
 		}
+
+		// 移入を再度計算 上でいろいろ計算された結果を改めて移入パスに書いてる？
+		this._advectionPass!.update({
+			inputTexture: velTexture,
+			velocity: velTexture
+		})
+
 	}
 
 	/**
