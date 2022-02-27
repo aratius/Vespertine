@@ -2,6 +2,7 @@ import WebGLBase from "src/components/lib/webgl/main";
 import { Texture, Vector2 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
 import AdvectionPass from "./passes/advectionPass";
+import BoundaryPass from "./passes/boundaryPass";
 import CompositionPass from "./passes/compositionPass";
 import ExternalForcePass from "./passes/externalForcePass";
 import Pass from "./passes/pass";
@@ -19,6 +20,7 @@ export default class Main extends WebGLBase {
 	private _externalForceManager?: ExternalForceManager
 	private _externalForcePass?: Pass
 	private _advectionPass?: Pass
+	private _boundaryPass?: Pass
 	private _compositionPass?: Pass
 	private _velocityTarget?: RenderTarget
 
@@ -46,6 +48,10 @@ export default class Main extends WebGLBase {
 		this._renderer!.autoClear = false
 		this._renderer!.setSize(innerWidth, innerHeight)
 		this._renderer!.setPixelRatio(devicePixelRatio)
+
+		// OES_standard_derivatives
+		const gl: WebGL2RenderingContext = this._renderer!.getContext() as WebGL2RenderingContext
+		gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.DONT_CARE)
 
 		this._externalForceManager = new ExternalForceManager(
 			this._renderer!.domElement,
@@ -83,6 +89,8 @@ export default class Main extends WebGLBase {
 		// 移流パス
 		this._advectionPass = new AdvectionPass(initialVelTexture, initialVelTexture, 0)
 
+		this._boundaryPass = new BoundaryPass()
+
 		// 最終描画用パス
 		this._compositionPass = new CompositionPass()
 
@@ -106,6 +114,11 @@ export default class Main extends WebGLBase {
 			velTex = this._velocityTarget!.set(this._renderer!)
 			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
 		}
+
+		// 画面の端に壁を置く
+		this._boundaryPass?.update({velocity: velTex})
+		velTex = this._velocityTarget!.set(this._renderer!)
+		this._renderer!.render(this._boundaryPass!.scene!, this._camera!)
 
 		// 移流を再度計算 上でいろいろ計算された結果を改めて移流パスに書いてる？
 		this._advectionPass!.update({

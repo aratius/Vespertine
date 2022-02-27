@@ -29,8 +29,16 @@ export default class AdvectionPass implements Pass {
 		geometry.setAttribute(
 			"position",
 			new BufferAttribute(
-				new Float32Array([-1, -1, 1, -1, 1, 1, 1, 1, -1, 1, -1, -1]),
-				2
+			  // NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
+			  new Float32Array([
+					-1, -1,  // 左下(1)
+					1, -1,  // 右下
+					1, 1,  // 右上(1)
+					1, 1,  // 右上(2)
+					-1, 1,  // 左上
+					-1, -1  // 左下(2)
+			  ]),
+			  2
 			)
 		);
 
