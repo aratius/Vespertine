@@ -11,6 +11,7 @@ interface Uniforms {
 
 /**
  * 移入
+ * 流体の流れ
  */
 export default class AdvectionPass implements Pass {
 
@@ -69,11 +70,13 @@ export default class AdvectionPass implements Pass {
 				uniform float u_decay;
 
 				void main() {
-					// 前回のテクスチャ情報 (バックトレース)
+					// 前回のテクスチャ情報 (バックトレース？)
 					vec2 prev_uv = fract(v_uv - u_time_delta * texture2D(u_velocity, v_uv).xy);
 					// 前回のuv情報でテクスチャを描画しつつ減衰係数を掛ける？
 					// NOTE: そのテクスチャの次の速度を決める？
 					// NOTE: 今回のテクスチャを前回のUVでtexture2Dしている？ てことは次回の値が予測できるのか？？
+					// NOTE: 流体の流れ = 対象のテクセルのベクトル それを計算している？ <= 真理？
+					// NOTE: なので別にナブラを使う必要はなくて、過去の値を参照することベクトルを計算している？
 					gl_FragColor = texture2D(u_input_texture, prev_uv) * (1. - u_decay);
 				}
 			`,

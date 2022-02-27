@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, RawShaderMaterial, Scene, Texture, Uniform } from "three";
+import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
@@ -34,7 +35,7 @@ export default class CompositionPass implements Pass {
 			uniforms: {
 				u_color_buffer: new Uniform(Texture.DEFAULT_IMAGE)
 			},
-			vertexShader: `
+			vertexShader: glslify`
 				attribute vec2 position;
 				varying vec2 v_uv;
 
@@ -43,7 +44,7 @@ export default class CompositionPass implements Pass {
 					gl_Position = vec4(position, 0., 1.);
 				}
 			`,
-			fragmentShader: `
+			fragmentShader: glslify`
 				precision highp float;
 				precision highp int;
 
@@ -52,7 +53,7 @@ export default class CompositionPass implements Pass {
 
 				void main() {
 					vec4 color = texture2D(u_color_buffer, v_uv);
-					gl_FragColor = color;
+					gl_FragColor = vec4(vec3(length(color.rgb)), 1.);
 				}
 			`,
 			depthTest: false,
