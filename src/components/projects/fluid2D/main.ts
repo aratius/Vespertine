@@ -1,5 +1,7 @@
 import WebGLBase from "src/components/lib/webgl/main";
-import { Vector2 } from "three";
+import { Texture, Vector2 } from "three";
+import { ExternalForceManager } from "./ExternalForceManager";
+import ExternalForcePass from "./passes/externalForcePass";
 import Pass from "./passes/pass";
 import VelocityInitPass from "./passes/velocityInitPass";
 import RenderTarget from "./renderTarget";
@@ -11,6 +13,10 @@ export default class Main extends WebGLBase {
 		scale: 0.5,
 		radius: 0.25
 	}
+	private _externalForceManager?: ExternalForceManager
+	private _externalForceTarget?: RenderTarget
+	private _externalForcePass?: Pass
+
 	private get _resolution(): Vector2 {
 		return new Vector2(this._config.scale * innerWidth, this._config.scale * innerHeight)
 	}
@@ -35,6 +41,9 @@ export default class Main extends WebGLBase {
 		this._renderer!.autoClear = false
 		this._renderer!.setSize(innerWidth, innerHeight)
 		this._renderer!.setPixelRatio(devicePixelRatio)
+
+		this._externalForceManager = new ExternalForceManager(this._renderer!.domElement, this._resolution)
+
 		this._initRenderTargets()
 	}
 
@@ -47,11 +56,13 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
+		this._updateRenderTargets()
 	}
 
 	private _initRenderTargets(): void {
 		// 外圧パス
-
+		this._externalForceTarget = new RenderTarget(this._resolution)
+		this._externalForcePass = new ExternalForcePass(this._resolution.x / this._resolution.y, this._config.radius)
 
 		// 速度初期化用パス
 		const velInitTarget = new RenderTarget(this._resolution)
@@ -60,6 +71,16 @@ export default class Main extends WebGLBase {
 		this._renderer?.render(velInitPass.scene!, this._camera!)
 
 		// 移流パス
+	}
+
+	private _updateRenderTargets(): void {
+
+		this._externalForcePass?.update({
+			input: this._externalForceManager?.inputTouches,
+			radius: this._config.radius,
+			velocity: new Texture()
+		})
+		this._preview(this._externalForcePass!)
 	}
 
 	/**

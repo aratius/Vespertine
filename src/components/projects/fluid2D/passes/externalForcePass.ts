@@ -66,7 +66,7 @@ export default class ExternalForcePass implements Pass {
 				uniform sampler2D u_velocity;
 
 				vec2 get_force(vec4 input_vec) {
-					float d = distance(v_scaled_uv, input_vec.xy) / radius;
+					float d = distance(v_scaled_uv, input_vec.xy) / u_radius;
 					// 距離が近いほど力が強くなる
 					float strength = 1. / max(d * d, 0.01);
 
@@ -78,7 +78,7 @@ export default class ExternalForcePass implements Pass {
 							normalize(input_vec.zw)
 						), 0., 1.
 					);
-					return strength * input_vec.zw * radius;
+					return strength * input_vec.zw * u_radius;
 				}
 
 				void main() {
@@ -99,23 +99,23 @@ export default class ExternalForcePass implements Pass {
 
 	update(uniforms: any): void {
 		// アスペクト比
-		if(uniforms.u_aspect !== undefined) {
-			this.material!.uniforms.u_aspect.value = uniforms.u_aspect
+		if(uniforms.aspect !== undefined) {
+			this.material!.uniforms.u_aspect.value = uniforms.aspect
 		}
 
 		// 外圧（マウス）
-		if(uniforms.u_input !== undefined) {
-			this.material!.uniforms.u_input.value = uniforms.u_input
+		if(uniforms.input !== undefined) {
+			this.material!.uniforms.u_input.value = uniforms.input
 		}
 
 		// マウス半径
-		if(uniforms.u_radius !== undefined) {
-			this.material!.uniforms.u_radius.value = uniforms.u_radius
+		if(uniforms.radius !== undefined) {
+			this.material!.uniforms.u_radius.value = uniforms.radius
 		}
 
 		// 速度テクスチャ
-		if(uniforms.u_velocity !== undefined) {
-			this.material!.uniforms.u_velocity.value = uniforms.u_velocity
+		if(uniforms.velocity !== undefined) {
+			this.material!.uniforms.u_velocity.value = uniforms.velocity
 		}
 	}
 
