@@ -3,10 +3,10 @@ import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
-	velocity: Texture
-	input: Vector4,
-	aspect: number,
-	radius: number,
+	velocity?: Texture
+	input?: Vector4,
+	aspect?: number,
+	radius?: number,
 }
 
 /**

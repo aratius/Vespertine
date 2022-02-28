@@ -3,10 +3,10 @@ import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
-	timeDelta: number,
-	inputTexture: Texture,
-	velocity: Texture,
-	decay: number
+	timeDelta?: number,
+	inputTexture?: Texture,
+	velocity?: Texture,
+	decay?: number
 }
 
 /**

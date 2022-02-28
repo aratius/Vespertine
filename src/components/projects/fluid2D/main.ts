@@ -4,8 +4,10 @@ import { ExternalForceManager } from "./externalForceManager";
 import AdvectionPass from "./passes/advectionPass";
 import BoundaryPass from "./passes/boundaryPass";
 import CompositionPass from "./passes/compositionPass";
+import DivergencePass from "./passes/divergencePass";
 import ExternalForcePass from "./passes/externalForcePass";
 import Pass from "./passes/pass";
+import PressurePass from "./passes/pressurePass";
 import VelocityInitPass from "./passes/velocityInitPass";
 import RenderTarget from "./renderTarget";
 
@@ -15,14 +17,19 @@ export default class Main extends WebGLBase {
 	private _config = {
 		scale: 0.5,
 		radius: 0.25,
-		dt: 1/60
+		dt: 1/60,
+		interation: 32
 	}
 	private _externalForceManager?: ExternalForceManager
-	private _externalForcePass?: Pass
-	private _advectionPass?: Pass
-	private _boundaryPass?: Pass
-	private _compositionPass?: Pass
+	private _externalForcePass?: ExternalForcePass
+	private _advectionPass?: AdvectionPass
+	private _divergencePass?: DivergencePass
+	private _pressurePass?: PressurePass
+	private _boundaryPass?: BoundaryPass
+	private _compositionPass?: CompositionPass
 	private _velocityTarget?: RenderTarget
+	private _divergenceTarget?: RenderTarget
+	private _pressureTarget?: RenderTarget
 
 	private get _resolution(): Vector2 {
 		return new Vector2(this._config.scale * innerWidth, this._config.scale * innerHeight)
@@ -91,17 +98,25 @@ export default class Main extends WebGLBase {
 
 		this._boundaryPass = new BoundaryPass()
 
+		this._divergencePass = new DivergencePass()
+
+		this._pressurePass = new PressurePass()
+
 		// 最終描画用パス
 		this._compositionPass = new CompositionPass()
 
 		// 速度保存用ターゲット
 		this._velocityTarget = new RenderTarget(this._resolution, 2)
+		this._divergenceTarget = new RenderTarget(this._resolution, 1)
+		this._pressureTarget = new RenderTarget(this._resolution, 2)
 	}
 
 	private _updateRenderTargets(): void {
+		let velTex: Texture, divTex: Texture, pressTex: Texture
+
 		// 移流を計算
 		this._advectionPass?.update({timeDelta: this._config.dt})
-		let velTex = this._velocityTarget!.set(this._renderer!)
+		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
@@ -119,6 +134,21 @@ export default class Main extends WebGLBase {
 		this._boundaryPass?.update({velocity: velTex})
 		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._boundaryPass!.scene!, this._camera!)
+
+		// 発散を求める
+		this._divergencePass?.update({
+			timeDelta: this._config.dt,
+			velocity: velTex
+		})
+		divTex = this._divergenceTarget!.set(this._renderer!)
+		this._renderer!.render(this._divergencePass!.scene!, this._camera!)
+
+		// 粘性の計算 反復法
+		for(let i = 0; i < this._config.interation; i++) {
+			pressTex = this._pressureTarget!.set(this._renderer!)
+			this._renderer!.render(this._pressurePass!.scene!, this._camera!)
+			this._pressurePass!.update({previousIteration: pressTex})
+		}
 
 		// 移流を再度計算 上でいろいろ計算された結果を改めて移流パスに書いてる？
 		this._advectionPass!.update({

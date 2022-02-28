@@ -3,10 +3,15 @@ import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
-	velocity?: Texture
+	previousIteration?: Texture,
+	divergence?: Texture
 }
 
-export default class BoundaryPass implements Pass {
+/**
+ * 粘性計算（ヤコビ法）
+ * NOTE: 後日ちゃんと理解する
+ */
+export default class PressurePass implements Pass {
 
 	public scene?: Scene
 	public material?: RawShaderMaterial
@@ -15,7 +20,7 @@ export default class BoundaryPass implements Pass {
 
 		this.scene = new Scene()
 
-		const geometry = new BufferGeometry()
+		const geometry = new BufferGeometry();
 		geometry.setAttribute(
 			"position",
 			new BufferAttribute(
@@ -32,14 +37,14 @@ export default class BoundaryPass implements Pass {
 			)
 		);
 
-		// GLSL3.0で書いている
-		// https://qiita.com/73_ch/items/afc9ac7956bb21f76517
 		this.material = new RawShaderMaterial({
 			uniforms: {
-				u_velocity: new Uniform(Texture.DEFAULT_IMAGE)
+				u_alpha: new Uniform(-1.),
+				u_beta: new Uniform(0.25),
+				u_previous_iteration: new Uniform(Texture.DEFAULT_IMAGE),
+				u_divergence: new Uniform(Texture.DEFAULT_IMAGE)
 			},
 			vertexShader: glslify`#version 300 es
-
 				in vec2 position;
 				out vec2 v_uv;
 
@@ -51,41 +56,45 @@ export default class BoundaryPass implements Pass {
 			fragmentShader: glslify`#version 300 es
 				precision highp float;
 				precision highp int;
-
 				in vec2 v_uv;
 				out vec4 glC;
-				uniform sampler2D u_velocity;
+				uniform float u_alpha;
+				uniform float u_beta;
+				uniform sampler2D u_previous_iteration;
+				uniform sampler2D u_divergence;
 
 				void main() {
-					// dFdx(y): スクリーンの偏微分（画素値の差分）
-					// このばあい特になんの特徴もないuvに掛けているのでただテクセルのサイズを取得したことになる
 					vec2 texel_size = vec2(dFdx(v_uv.x), dFdy(v_uv.y));
 
-					float left_edge_mask = ceil(texel_size.x - v_uv.x);
-					float right_edge_mask = ceil(v_uv.x - (1. - texel_size.x));
-					float top_edge_mask = ceil(v_uv.y - (1. - texel_size.y));
-					float bottom_edge_mask = ceil(texel_size.y - v_uv.y);
+					vec4 x0 = texture(u_previous_iteration, v_uv - vec2(texel_size.x, 0.));
+					vec4 x1 = texture(u_previous_iteration, v_uv + vec2(texel_size.x, 0.));
+					vec4 y0 = texture(u_previous_iteration, v_uv - vec2(0., texel_size.y));
+					vec4 y1 = texture(u_previous_iteration, v_uv + vec2(0., texel_size.y));
 
-					float mask = clamp(left_edge_mask + right_edge_mask + top_edge_mask + bottom_edge_mask, 0., 1.);
-					float direction = mix(1., -1., mask);
+					vec4 d = texture(u_divergence, v_uv);
 
-					glC = texture(u_velocity, v_uv) * direction;
-
+					glC = (x0 + x1 + y0 + y1 + u_alpha * d) * u_beta;
 				}
+
 			`,
 			depthTest: false,
 			depthWrite: false,
-			extensions: { derivatives: true }  // dFdxを使うため？？
+			extensions: { derivatives: true }
 		})
 
 		const mesh = new Mesh(geometry, this.material)
 		mesh.frustumCulled = false
 		this.scene.add(mesh)
+
 	}
 
 	public update(uniforms: Uniforms): void {
-		if(uniforms.velocity !== undefined) {
-			this.material!.uniforms.u_velocity.value = uniforms.velocity
+		if(uniforms.previousIteration !== undefined) {
+			this.material!.uniforms.u_previous_iteration.value = uniforms.previousIteration
+		}
+
+		if(uniforms.divergence !== undefined) {
+			this.material!.uniforms.u_divergence.value = uniforms.divergence
 		}
 	}
 

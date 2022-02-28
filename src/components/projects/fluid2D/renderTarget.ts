@@ -43,7 +43,7 @@ export default class RenderTarget {
 		]
 
 		// 指定の個数分複製
-		for(let i = 1; i < nBuffers; ++i) {
+		for(let i = 1; i < nBuffers; i++) {
 			this._buffers[i] = {
 				target: this._buffers[0].target.clone(),
 				needsResize: false

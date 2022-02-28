@@ -3,7 +3,7 @@ import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
-	colorBuffer: Texture,
+	colorBuffer?: Texture,
 }
 
 export default class CompositionPass implements Pass {
