@@ -1,16 +1,16 @@
 import WebGLBase from "src/components/lib/webgl/main";
 import { Texture, Vector2 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
+import RenderTarget from "./renderTarget";
+import Pass from "./passes/pass";
 import AdvectionPass from "./passes/advectionPass";
 import BoundaryPass from "./passes/boundaryPass";
 import CompositionPass from "./passes/compositionPass";
 import DivergencePass from "./passes/divergencePass";
 import ExternalForcePass from "./passes/externalForcePass";
-import Pass from "./passes/pass";
 import PressurePass from "./passes/pressurePass";
 import PressureSubtractionPass from "./passes/pressureSubtractionPass";
 import VelocityInitPass from "./passes/velocityInitPass";
-import RenderTarget from "./renderTarget";
 
 export default class Main extends WebGLBase {
 
@@ -34,7 +34,10 @@ export default class Main extends WebGLBase {
 	private _pressureTarget?: RenderTarget
 
 	private get _resolution(): Vector2 {
-		return new Vector2(this._config.scale * innerWidth, this._config.scale * innerHeight)
+		return new Vector2(
+			innerWidth * this._config.scale,
+			innerHeight * this._config.scale
+		)
 	}
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -70,13 +73,9 @@ export default class Main extends WebGLBase {
 		this._initRenderTargets()
 	}
 
-	protected _deInitChild(): void {
+	protected _deInitChild(): void {}
 
-	}
-
-	protected _resizeChild(): void {
-
-	}
+	protected _resizeChild(): void {}
 
 	protected _updateChild(): void {
 		this._updateRenderTargets()
@@ -175,15 +174,6 @@ export default class Main extends WebGLBase {
 			colorBuffer: visualization
 		})
 		this._renderer!.render(this._compositionPass!.scene!, this._camera!)
-	}
-
-	/**
-	 * パスをプレビューする
-	 * @param pass
-	 */
-	private _preview(pass: Pass) {
-		this._renderer?.setRenderTarget(null)
-		this._renderer?.render(pass.scene!, this._camera!)
 	}
 
 }
