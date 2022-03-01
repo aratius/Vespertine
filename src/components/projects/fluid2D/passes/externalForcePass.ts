@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, RawShaderMaterial, Scene, Texture, Uniform, Vector2, Vector4 } from "three";
-import glslify from "../utis/glslify";
+import { glslify } from "../utis/glsl";
 import Pass from "./pass";
 
 interface Uniforms {
@@ -25,19 +25,19 @@ export default class ExternalForcePass implements Pass {
 
 		const geometry = new BufferGeometry();
 		geometry.setAttribute(
-		  "position",
-		  new BufferAttribute(
-			// NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
-			new Float32Array([
-				-1, -1,  // 左下(1)
-				1, -1,  // 右下
-				1, 1,  // 右上(1)
-				1, 1,  // 右上(2)
-				-1, 1,  // 左上
-				-1, -1  // 左下(2)
-			]),
-			2
-		  )
+			"position",
+			new BufferAttribute(
+				// NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
+				new Float32Array([
+					-1, -1,  // 左下(1)
+					1, -1,  // 右下
+					1, 1,  // 右上(1)
+					1, 1,  // 右上(2)
+					-1, 1,  // 左上
+					-1, -1  // 左下(2)
+				]),
+				2
+			)
 		);
 		this.material = new RawShaderMaterial({
 			uniforms: {
@@ -106,22 +106,22 @@ export default class ExternalForcePass implements Pass {
 
 	update(uniforms: Uniforms): void {
 		// アスペクト比
-		if(uniforms.aspect !== undefined) {
+		if (uniforms.aspect !== undefined) {
 			this.material!.uniforms.u_aspect.value = uniforms.aspect
 		}
 
 		// 外圧（マウス）
-		if(uniforms.input !== undefined) {
+		if (uniforms.input !== undefined) {
 			this.material!.uniforms.u_input.value = uniforms.input
 		}
 
 		// マウス半径
-		if(uniforms.radius !== undefined) {
+		if (uniforms.radius !== undefined) {
 			this.material!.uniforms.u_radius.value = uniforms.radius
 		}
 
 		// 速度テクスチャ
-		if(uniforms.velocity !== undefined) {
+		if (uniforms.velocity !== undefined) {
 			this.material!.uniforms.u_velocity.value = uniforms.velocity
 		}
 	}

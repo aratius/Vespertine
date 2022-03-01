@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, PlaneBufferGeometry, RawShaderMaterial, Scene, Texture, Uniform, Vector2 } from "three";
-import glslify from "../utis/glslify";
+import { glslify } from "../utis/glsl";
 import Pass from "./pass";
 
 /**
@@ -19,7 +19,7 @@ export default class VelocityInitPass implements Pass {
 		geometry.setAttribute(
 			"position",
 			new BufferAttribute(
-			  // NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
+				// NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
 				new Float32Array([
 					-1, -1,  // 左下(1)
 					1, -1,  // 右下
@@ -28,7 +28,7 @@ export default class VelocityInitPass implements Pass {
 					-1, 1,  // 左上
 					-1, -1  // 左下(2)
 				]),
-			  2
+				2
 			)
 		);
 		this.material = new RawShaderMaterial({

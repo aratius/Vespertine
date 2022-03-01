@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, RawShaderMaterial, Scene, Texture, Uniform } from "three";
-import glslify from "../utis/glslify";
+import { glslify } from "../utis/glsl";
 import Pass from "./pass";
 
 interface Uniforms {

@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Mesh, RawShaderMaterial, Scene, Texture, Uniform } from "three";
-import glslify from "../utis/glslify";
+import { glslify } from "../utis/glsl";
 import Pass from "./pass";
 
 interface Uniforms {
@@ -19,16 +19,16 @@ export default class BoundaryPass implements Pass {
 		geometry.setAttribute(
 			"position",
 			new BufferAttribute(
-			  // NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
-			  new Float32Array([
+				// NOTE: 対角線上に頂点が二個ある四角形のposition もしかしてこれでデフォルトでindexがうまく設定される？
+				new Float32Array([
 					-1, -1,  // 左下(1)
 					1, -1,  // 右下
 					1, 1,  // 右上(1)
 					1, 1,  // 右上(2)
 					-1, 1,  // 左上
 					-1, -1  // 左下(2)
-			  ]),
-			  2
+				]),
+				2
 			)
 		);
 
@@ -84,7 +84,7 @@ export default class BoundaryPass implements Pass {
 	}
 
 	public update(uniforms: Uniforms): void {
-		if(uniforms.velocity !== undefined) {
+		if (uniforms.velocity !== undefined) {
 			this.material!.uniforms.u_velocity.value = uniforms.velocity
 		}
 	}
