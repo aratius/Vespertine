@@ -3,7 +3,6 @@ import glslify from "../utis/glslify";
 import Pass from "./pass";
 
 interface Uniforms {
-	timeDelta?: number;
 	velocity?: Texture
 }
 
@@ -35,7 +34,6 @@ export default class DivergencePass implements Pass {
 
 		this.material = new RawShaderMaterial({
 			uniforms: {
-				u_time_delta: new Uniform(0.),
 				u_velocity: new Uniform(Texture.DEFAULT_IMAGE)
 			},
 			vertexShader: glslify`#version 300 es
@@ -55,7 +53,6 @@ export default class DivergencePass implements Pass {
 
 				in vec2 v_uv;
 				out vec4 glC;
-				uniform float u_time_delta;
 				uniform sampler2D u_velocity;
 
 				void main() {
@@ -86,10 +83,6 @@ export default class DivergencePass implements Pass {
 	}
 
 	public update(uniforms: Uniforms): void {
-		if(uniforms.timeDelta !== undefined) {
-			this.material!.uniforms.u_time_delta.value = uniforms.timeDelta
-		}
-
 		if(uniforms.velocity !== undefined) {
 			this.material!.uniforms.u_velocity.value = uniforms.velocity
 		}

@@ -140,14 +140,12 @@ export default class Main extends WebGLBase {
 		this._renderer!.render(this._boundaryPass!.scene!, this._camera!)
 
 		// 発散を求める
-		this._divergencePass?.update({
-			timeDelta: this._config.dt,
-			velocity: velTex
-		})
+		this._divergencePass?.update({velocity: velTex})
 		divTex = this._divergenceTarget!.set(this._renderer!)
 		this._renderer!.render(this._divergencePass!.scene!, this._camera!)
 
 
+		this._pressurePass!.update({divergence: divTex})
 		// 粘性の計算 反復法
 		for (let i = 0; i < this._config.iteration; i++) {
 			pressTex = this._pressureTarget!.set(this._renderer!)
