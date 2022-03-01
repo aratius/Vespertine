@@ -19,7 +19,7 @@ export default class Main extends WebGLBase {
 		scale: 0.5,
 		radius: 0.25,
 		dt: 1/60,
-		interation: 32
+		iteration: 32
 	}
 	private _externalForceManager?: ExternalForceManager
 	private _externalForcePass?: ExternalForcePass
@@ -149,7 +149,7 @@ export default class Main extends WebGLBase {
 
 
 		// 粘性の計算 反復法
-		for(let i = 0; i < this._config.interation; i++) {
+		for (let i = 0; i < this._config.iteration; i++) {
 			pressTex = this._pressureTarget!.set(this._renderer!)
 			this._renderer!.render(this._pressurePass!.scene!, this._camera!)
 			this._pressurePass!.update({previousIteration: pressTex})
