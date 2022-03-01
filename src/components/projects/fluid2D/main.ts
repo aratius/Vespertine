@@ -2,7 +2,6 @@ import WebGLBase from "src/components/lib/webgl/main";
 import { Texture, Vector2 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
 import RenderTarget from "./renderTarget";
-import Pass from "./passes/pass";
 import AdvectionPass from "./passes/advectionPass";
 import BoundaryPass from "./passes/boundaryPass";
 import CompositionPass from "./passes/compositionPass";
