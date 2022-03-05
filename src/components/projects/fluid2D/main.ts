@@ -17,7 +17,7 @@ export default class Main extends WebGLBase {
 	private _config = {
 		scale: 0.5,
 		radius: 0.25,
-		dt: 1/60,
+		dt: 1 / 60,
 		iteration: 32
 	}
 	private _externalForceManager?: ExternalForceManager
@@ -55,7 +55,7 @@ export default class Main extends WebGLBase {
 		})
 	}
 
-	protected  _initChild(): void {
+	protected _initChild(): void {
 		this._renderer!.autoClear = false
 		this._renderer!.setSize(innerWidth, innerHeight)
 		this._renderer!.setPixelRatio(devicePixelRatio)
@@ -72,9 +72,9 @@ export default class Main extends WebGLBase {
 		this._initRenderTargets()
 	}
 
-	protected _deInitChild(): void {}
+	protected _deInitChild(): void { }
 
-	protected _resizeChild(): void {}
+	protected _resizeChild(): void { }
 
 	protected _updateChild(): void {
 		this._updateRenderTargets()
@@ -117,12 +117,12 @@ export default class Main extends WebGLBase {
 		let velTex: Texture, divTex: Texture, pressTex: Texture
 
 		// 移流を計算
-		this._advectionPass?.update({timeDelta: this._config.dt})
+		this._advectionPass?.update({ timeDelta: this._config.dt })
 		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
-		if(this._externalForceManager!.inputTouches.length > 0) {
+		if (this._externalForceManager!.inputTouches.length > 0) {
 			this._externalForcePass?.update({
 				input: this._externalForceManager?.inputTouches[0].input,
 				radius: this._config.radius,
@@ -133,22 +133,22 @@ export default class Main extends WebGLBase {
 		}
 
 		// 画面の端に壁を置く
-		this._boundaryPass?.update({velocity: velTex})
+		this._boundaryPass?.update({ velocity: velTex })
 		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._boundaryPass!.scene!, this._camera!)
 
 		// 発散を求める
-		this._divergencePass?.update({velocity: velTex})
+		this._divergencePass?.update({ velocity: velTex })
 		divTex = this._divergenceTarget!.set(this._renderer!)
 		this._renderer!.render(this._divergencePass!.scene!, this._camera!)
 
 
-		this._pressurePass!.update({divergence: divTex})
+		this._pressurePass!.update({ divergence: divTex })
 		// 粘性の計算 反復法
 		for (let i = 0; i < this._config.iteration; i++) {
 			pressTex = this._pressureTarget!.set(this._renderer!)
 			this._renderer!.render(this._pressurePass!.scene!, this._camera!)
-			this._pressurePass!.update({previousIteration: pressTex})
+			this._pressurePass!.update({ previousIteration: pressTex })
 		}
 
 		// 圧力勾配を抽象化し、発散ゼロの速度ベクトル場を得る

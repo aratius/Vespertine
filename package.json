@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/node": "17.0.18",
-    "@types/react": "17.0.39",
+    "@types/react": "17.0.2",
     "@types/sass": "^1.43.1",
     "@types/stats.js": "^0.17.0",
     "@types/three": "^0.137.0",

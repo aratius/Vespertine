@@ -51,11 +51,29 @@ export default class CompositionPass implements Pass {
 				varying vec2 v_uv;
 				uniform sampler2D u_color_buffer;
 
+				float dot(vec2 p, float rad) {
+					return step(length(p - 0.5), rad);
+				}
+
 				void main() {
-					vec2 vel = texture2D(u_color_buffer, v_uv).xy;
+
+					// gl_FragColor = vec4(col,  1.0);
+					float seg = 50.;
+
+					vec2 vel = texture2D(u_color_buffer, floor(v_uv * seg)/seg).xy;
 					float len = length(vel);
 
-					gl_FragColor = vec4(vec3(len),  1.0);
+					const vec3 c1 = vec3(38./255., 38./255., 38./255.);
+					const vec3 c2 = vec3(242./255., 5./255., 5./255.);
+					const vec3 c3 = vec3(140./255., 3./255., 3./255.);
+					const vec3 c4 = vec3(48./255., 242./255., 223./255.);
+
+					vec3 col1 = mix(c1, c2, vel.x);
+					vec3 col2 = mix(c3, c4, vel.y);
+					vec3 col = mix(col1, col2, len);
+
+					vec3 dots = vec3(dot(mod(v_uv*seg, 1.), len * 1.));
+					gl_FragColor = vec4(dots * col, 1.0);
 				}
 			`,
 			depthTest: false,
