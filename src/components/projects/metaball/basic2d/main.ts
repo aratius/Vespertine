@@ -1,17 +1,16 @@
-import { AmbientLight, DirectionalLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, SphereBufferGeometry } from "three";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
+import { Mesh, PlaneBufferGeometry } from "three";
 import WebGLBase from "src/components/lib/webgl/main";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import gsap from "gsap";
 import MetaballMaterial from "./material";
 
 export default class Main extends WebGLBase {
 
 	public _projectName: string = "basic"
+	private _mat?: MetaballMaterial
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
-			camera: "orthographic"
+			camera: "orthographic",
+			stats: true
 		})
 	}
 
@@ -28,6 +27,8 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
+		if (this._mat)
+			this._mat.uniforms.u_time.value = this._elapsedTime
 	}
 
 	private async _initPlaceHolderStage(): Promise<void> {
@@ -36,12 +37,13 @@ export default class Main extends WebGLBase {
 		this._camera!.position.set(0, 5, 100)
 		this._camera!.lookAt(0, 0, 0)
 
-		const floorGeometry = new PlaneBufferGeometry(100, 100, 1, 1)
-		const floorMaterial = new MetaballMaterial()
-		const floorMesh = new Mesh(floorGeometry, floorMaterial)
-		floorMesh.receiveShadow = true
-		floorMesh.castShadow = true
-		this._scene?.add(floorMesh)
+		const geo = new PlaneBufferGeometry(50, 50, 1, 1)
+		const mat = new MetaballMaterial()
+		this._mat = mat
+		const mesh = new Mesh(geo, mat)
+		mesh.receiveShadow = true
+		mesh.castShadow = true
+		this._scene?.add(mesh)
 
 	}
 
