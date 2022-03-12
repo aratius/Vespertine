@@ -1,6 +1,6 @@
 import { AmbientLight, DirectionalLight, Mesh, MeshStandardMaterial, PlaneBufferGeometry } from "three";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
-import WebGLBase from "src/components/lib/webgl/main";
+import WebGLBase from "src/lib/webgl/common/main";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import gsap from "gsap";
 

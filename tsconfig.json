@@ -15,8 +15,10 @@
     "jsx": "preserve",
     "incremental": true,
 	"baseUrl": ".",
-	"downlevelIteration": true
+	"paths": {
+		"@/components/*": ["components/*"]
+	}
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "tasks/create.mjs"],
+  "include": ["next-env.d.ts", "additional.d.ts", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }

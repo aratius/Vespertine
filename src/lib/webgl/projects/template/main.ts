@@ -1,6 +1,6 @@
-import { AmbientLight, DirectionalLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, SphereBufferGeometry } from "three";
+import { AmbientLight, DirectionalLight, Mesh, MeshStandardMaterial, PlaneBufferGeometry } from "three";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
-import WebGLBase from "src/components/lib/webgl/main";
+import WebGLBase from "src/lib/webgl/common/main";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import gsap from "gsap";
 
@@ -14,7 +14,7 @@ export default class Main extends WebGLBase {
 		})
 	}
 
-	protected  _initChild(): void {
+	protected _initChild(): void {
 		this._initPlaceHolderStage()
 	}
 
@@ -33,7 +33,7 @@ export default class Main extends WebGLBase {
 
 		this._renderer!.shadowMap.enabled = true
 		this._camera!.position.set(0, 5, 100)
-		this._camera!.lookAt(0 ,0, 0)
+		this._camera!.lookAt(0, 0, 0)
 
 		const light = new DirectionalLight(0xffffff, 0.6)
 		light.castShadow = true
@@ -53,29 +53,31 @@ export default class Main extends WebGLBase {
 
 		const font = await new FontLoader().loadAsync("/fonts/hue.json")
 		const textGeometry = new TextGeometry(this._projectName, { font, size: 5, height: 3 })
-		const textMaterial = new MeshStandardMaterial({color: 0xffffff, metalness: 0.2, roughness: 0.1})
-		const textMesh =  new Mesh(textGeometry, textMaterial)
+		const textMaterial = new MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.1 })
+		const textMesh = new Mesh(textGeometry, textMaterial)
 		textMesh.castShadow = true
 		textMesh.receiveShadow = true
 		textGeometry.computeBoundingBox();
-		const xOffset = ( textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x );
-		textMesh.position.set(-xOffset/2, 0, 1)
+		const xOffset = (textGeometry.boundingBox!.max.x - textGeometry.boundingBox!.min.x);
+		textMesh.position.set(-xOffset / 2, 0, 1)
 		this._scene?.add(textMesh)
 
 		const floorGeometry = new PlaneBufferGeometry(100, 100, 1, 1)
-		const floorMaterial = new MeshStandardMaterial({color: 0x777777, metalness: 0.7, roughness: 0.1})
+		const floorMaterial = new MeshStandardMaterial({ color: 0x777777, metalness: 0.7, roughness: 0.1 })
 		const floorMesh = new Mesh(floorGeometry, floorMaterial)
 		floorMesh.receiveShadow = true
 		floorMesh.castShadow = true
 		this._scene?.add(floorMesh)
 
-		gsap.to(this, {duration: 1, ease: "linear", repeat: -1, onUpdate: () => {
-			const time = Date.now() / 5000
-			const x = Math.sin(time) * 10
-			const y = Math.cos(time) * 10
-			light.position.setX(x)
-			light.position.setY(y)
-		}})
+		gsap.to(this, {
+			duration: 1, ease: "linear", repeat: -1, onUpdate: () => {
+				const time = Date.now() / 5000
+				const x = Math.sin(time) * 10
+				const y = Math.cos(time) * 10
+				light.position.setX(x)
+				light.position.setY(y)
+			}
+		})
 	}
 
 }

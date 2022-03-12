@@ -36,23 +36,23 @@ export default class WebGLBase {
 		this._canvas = canvas
 		this._settings = {
 			...WebGLBase._defaultOptions,
-			...options,
+			...options
 		}
-		if(this._settings.stats) {
+		if (this._settings.stats) {
 			this._stats = new Stats()
 			document.body.appendChild(this._stats.dom)
 		}
 	}
 
 	protected get _elapsedTime(): number {
-		return Date.now()/1000 - this._startTime
+		return Date.now() / 1000 - this._startTime
 	}
 
 	/**
 	 * render
 	 */
 	public render(): void {
-		if(this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera)
+		if (this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera)
 	}
 
 	/**
@@ -60,20 +60,20 @@ export default class WebGLBase {
 	 */
 	public init(): void {
 		this._scene = new Scene()
-		this._renderer = new WebGLRenderer({canvas: this._canvas!, antialias: true})
-		if(this._settings.fillScreen) this._renderer.setSize(innerWidth, innerHeight)
-		if(this._settings.camera == "orthographic") {
+		this._renderer = new WebGLRenderer({ canvas: this._canvas!, antialias: true })
+		if (this._settings.fillScreen) this._renderer.setSize(innerWidth, innerHeight)
+		if (this._settings.camera == "orthographic") {
 			this._camera = new _PerspectiveCamera(this._settings.cameraSettings as PerspectiveCameraOptions)
 		} else {
 			this._camera = new _OrthographicCamera(this._settings.cameraSettings as OrthographicCameraOptions)
 		}
 		this._camera.updateProjectionMatrix()
-		this._startTime = Date.now()/1000
+		this._startTime = Date.now() / 1000
 
 		this._initChild()
 
 		window.addEventListener("resize", this._resize)
-		if(this._settings.shouldUpdate) this._update()
+		if (this._settings.shouldUpdate) this._update()
 	}
 
 	public _deInit(): void {
@@ -88,7 +88,7 @@ export default class WebGLBase {
 	}
 
 	private _resize = (): void => {
-		if(this._settings.fillScreen) {
+		if (this._settings.fillScreen) {
 			// TODO: fill screen
 			this._camera?.fillScreen()
 			this._renderer?.setSize(innerWidth, innerHeight)
@@ -98,9 +98,9 @@ export default class WebGLBase {
 	}
 
 	// override in sub class
-	protected _initChild(): void {}
-	protected _deInitChild(): void {}
-	protected _resizeChild(): void {}
-	protected _updateChild(): void {}
+	protected _initChild(): void { }
+	protected _deInitChild(): void { }
+	protected _resizeChild(): void { }
+	protected _updateChild(): void { }
 
 }

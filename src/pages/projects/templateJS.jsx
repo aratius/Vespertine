@@ -1,8 +1,8 @@
-import { Component, ReactElement } from "react";
-import WebGLMain from "src/components/projects/template/main";
+import { Component } from "react";
+import WebGLMain from "src/lib/webgl/projects/template/main";
 import styles from "src/styles/projects/template.module.scss"
-import Head from "src/components/lib/next/head";
-import Info from "src/components/lib/next/info";
+import Head from "src/components/common/head";
+import Info from "src/components/common/info";
 
 export default class Index extends Component {
 
@@ -28,16 +28,18 @@ export default class Index extends Component {
 					title="[PROJECT_NAME]"
 					shareText=""
 					shareUrl=""
+					twitterId=""
+					cc={`© ${new Date().getFullYear()} | quick-sand`}
 					details={[
 						[
 							{
 								type: "text",
-								text: "source: "
+								text: "template engine: "
 							},
 							{
 								type: "link",
-								text: "https://github.com/aratius/QuickSand",
-								link: "https://github.com/aratius/QuickSand"
+								text: "quick-sand",
+								link: "https://github.com/aratius/quick-sand"
 							}
 						]
 					]}
@@ -47,6 +49,7 @@ export default class Index extends Component {
 					ogImgPath=""
 					ogUrl=""
 					description=""
+					twitterId=""
 				/>
                 <canvas ref={this._onRefCanvas}></canvas>
             </div>

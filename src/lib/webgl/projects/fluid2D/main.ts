@@ -1,4 +1,4 @@
-import WebGLBase from "src/components/lib/webgl/main";
+import WebGLBase from "src/lib/webgl/common/main";
 import { Texture, Vector2 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
 import RenderTarget from "./renderTarget";

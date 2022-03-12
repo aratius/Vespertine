@@ -1,5 +1,5 @@
 import { Mesh, PlaneBufferGeometry } from "three";
-import WebGLBase from "src/components/lib/webgl/main";
+import WebGLBase from "src/lib/webgl/common/main";
 import MetaballMaterial from "./material";
 
 export default class Main extends WebGLBase {

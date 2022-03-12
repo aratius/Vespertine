@@ -1,5 +1,7 @@
 import { Component, ReactElement } from "react";
-import WebGLMain from "../components/projects/template/main";
+import pagesJson from "public/pages.json"
+import styles from "src/styles/index.module.scss"
+import RecursionFiles from "src/components/common/recursionFiles";
 
 interface Props {}
 interface State {}
@@ -12,19 +14,27 @@ export default class Index extends Component {
         this.state = {}
     }
 
-    public componentDidMount(): void {
-    }
 
-	private _onRefCanvas(node: HTMLCanvasElement): void {
-		if(!node) return
-		new WebGLMain(node)
-	}
 
     public render(): ReactElement {
         return (
-            <>
-                <canvas ref={this._onRefCanvas}></canvas>
-            </>
+            <div className={styles.container}>
+				<header>
+					<h1>QuickSand</h1>
+				</header>
+				<section>
+					<nav>
+						<RecursionFiles
+							name={pagesJson.name}
+							pages={pagesJson.pages as any}
+							dir={pagesJson.name}
+						/>
+					</nav>
+				</section>
+				<footer>
+					<p>© 2022 | QuickSand</p>
+				</footer>
+            </div>
         )
     }
 }

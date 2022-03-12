@@ -5,9 +5,10 @@ interface Props {
   ogUrl: string,
   ogImgPath: string,
   description: string,
+  twitterId: string
 }
 
-const _Head: React.FC<Props> = ({title, ogUrl, ogImgPath, description}) => {
+const _Head: React.FC<Props> = ({title, ogUrl, ogImgPath, description , twitterId}) => {
 
   return (
     <Head>
@@ -23,7 +24,7 @@ const _Head: React.FC<Props> = ({title, ogUrl, ogImgPath, description}) => {
       <meta property="og:site_name" content="eden" />
       <meta property="og:image" key="ogImage" content={ogImgPath} />
       <meta name="twitter:card" key="twitterCard" content="summary_large_image" />
-      <meta name="twitter:site" content="@aualrxse" />
+      <meta name="twitter:site" content={`@${twitterId}`} />
     </Head>
   )
 }

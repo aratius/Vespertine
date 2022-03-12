@@ -11,11 +11,11 @@ $ npm install
 ## Create Project
 
 ```
-$ npm run create [PROJECT_NAME] [...options]
+$ npx quick-sand create -name [PROJECT_NAME]
 ```
 
 ```
-$ npm run create Trail ts
+$ npx quick-sand create -name Trail
 ```
 
 Open [http://localhost:3000/projects/[PROJECT_NAME]](http://localhost:3000/projects/[PROJECT_NAME]) with your browser to see the result.
@@ -23,20 +23,21 @@ Open [http://localhost:3000/projects/[PROJECT_NAME]](http://localhost:3000/proje
 ## Options
 
 ```
-$ npm run create Trail ts
+$ npx quick-sand create --n Trail --ts
 ```
 
 | name | description                                         |
 | ---- | --------------------------------------------------- |
-| ts   | A Module which is created is written in TypeScript. |
+|  -name \| --n \[PROJECT_NAME\] | A module name following the -name qualifier. |
+|  -typescript \| --ts | A module which is created is written in TypeScript. |
 
 ## Edit Project
 
 You can start editing the page by modifying
 
 -   `src/pages/projects/[PROJECT_NAME].jsx`
--   `src/components/[PROJECT_NAME]/main.js`
--   `src/styles/[PROJECT_NAME].module.scss`
+-   `src/lib/webgl/projects/[PROJECT_NAME]/main.js`
+-   `src/styles/projects/[PROJECT_NAME].module.scss`
 
 The page auto-updates as you edit the file.
 
@@ -46,7 +47,7 @@ The page auto-updates as you edit the file.
 
 ### WebGL Entry Point
 
-`src/components/[PROJECT_NAME]/main.js`
+`src/lib/webgl/projects/[PROJECT_NAME]/main.js`
 
 -   This class extends from `WebGLBase`.
 -   You can access all the public or protected `WebGLBase` api.
@@ -70,7 +71,26 @@ The page auto-updates as you edit the file.
 
 ### Style Entry Point
 
-`src/styles/[PROJECT_NAME].module.scss`
+`src/styles/projects/[PROJECT_NAME].module.scss`
+
+
+## Next Source Directory Construction
+
+|path|description|
+|---|---|
+|src/api| Any modules that sends some request to outer API. |
+|src/components| React (.jsx, .tsx) components. |
+|src/constants| Constants |
+|src/pages| When a file is added to the this directory, it's automatically available as a route. See [here](https://nextjs.org/docs/routing/introduction) |
+|src/styles| Stylesheets |
+|src/types| Type declaration files. |
+|src/utils| Utility functions etc. |
+|src/lib| Any libraries that doesn't depend on components. |
+
+## Index Page
+
+- Creating the sitemap in index page automatically every creation.
+- You can edit the styles(src/styles/index.module.scss) and customize its looks.
 
 ### Author
 

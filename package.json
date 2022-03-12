@@ -1,7 +1,11 @@
 {
-  "name": "QuickSand",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@aualrxse/quick-sand",
+  "version": "0.0.9",
+  "private": false,
+  "repository": "https://github.com/aratius/quick-sand/",
+  "homepage": "https://aualrxse.com/",
+  "description": "A Template Engine for all developers loves three.",
+  "license": "MIT",
   "keywords": [
     "javascript",
     "typescript",
@@ -10,12 +14,14 @@
     "react.js",
     "zx"
   ],
+  "bin": {
+    "quick-sand": "./tasks/create.mjs"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "create": "node ./tasks/create.mjs"
+    "lint": "next lint"
   },
   "dependencies": {
     "glsl-noise": "^0.0.0",
@@ -25,9 +31,11 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "sass": "^1.49.8",
-    "three": "^0.137.5"
+    "three": "^0.137.5",
+    "typescript": "4.5.5"
   },
   "devDependencies": {
+    "@aualrxse/quick-sand": "file:",
     "@types/node": "17.0.18",
     "@types/react": "17.0.2",
     "@types/sass": "^1.43.1",
@@ -40,7 +48,6 @@
     "opener": "^1.5.2",
     "raw-loader": "^4.0.2",
     "stats.js": "^0.17.0",
-    "typescript": "4.5.5",
     "zx": "^5.1.0"
   }
 }

@@ -1,8 +1,9 @@
+
 import { Component, ReactElement } from "react";
-import WebGLMain from "src/components/projects/metaball/basic2d/main";
-import styles from "src/styles/projects/metaball/basic.module.scss"
-import Head from "src/components/lib/next/head";
-import Info from "src/components/lib/next/info";
+import WebGLMain from "src/lib/webgl/projects/metaball/basic2D/main";
+import styles from "src/styles/projects/metaball/basic2D.module.scss"
+import Head from "src/components/common/head";
+import Info from "src/components/common/info";
 
 interface Props {}
 interface State {}
@@ -28,31 +29,35 @@ export default class Index extends Component {
         return (
             <div className={styles.container}>
 				<Info
-					title="metaball/basic"
+					title="basic2D"
 					shareText=""
 					shareUrl=""
+					twitterId=""
+					cc={`© 2022 | quick-sand`}
 					details={[
 						[
 							{
 								type: "text",
-								text: "source: "
+								text: "template engine: "
 							},
 							{
 								type: "link",
-								text: "https://github.com/aratius/QuickSand",
-								link: "https://github.com/aratius/QuickSand"
+								text: "quick-sand",
+								link: "https://github.com/aratius/quick-sand"
 							}
 						]
 					]}
 				/>
 				<Head
-					title="metaball/basic"
+					title="basic2D"
 					ogImgPath=""
 					ogUrl=""
 					description=""
+					twitterId=""
 				/>
                 <canvas ref={this._onRefCanvas}></canvas>
             </div>
         )
     }
 }
+

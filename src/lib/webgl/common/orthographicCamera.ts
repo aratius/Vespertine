@@ -14,10 +14,10 @@ export default class _OrthographicCamera extends OrthographicCamera implements C
 
 	public static get defaultOptions(): OrthographicCameraOptions {
 		return {
-			left: -innerWidth/2,
-			right: innerWidth/2,
-			top: innerHeight/2,
-			bottom: -innerHeight/2,
+			left: -innerWidth / 2,
+			right: innerWidth / 2,
+			top: innerHeight / 2,
+			bottom: -innerHeight / 2,
 			near: 1,
 			far: 1000
 		}
@@ -38,10 +38,10 @@ export default class _OrthographicCamera extends OrthographicCamera implements C
 	}
 
 	public fillScreen(): void {
-		this.left = -innerWidth/2
-		this.right = innerWidth/2
-		this.top = innerHeight/2
-		this.bottom = -innerHeight/2
+		this.left = -innerWidth / 2
+		this.right = innerWidth / 2
+		this.top = innerHeight / 2
+		this.bottom = -innerHeight / 2
 		this.updateProjectionMatrix()
 	}
 
