@@ -2,6 +2,7 @@
 import { Mesh, MeshBasicMaterial, PlaneBufferGeometry } from "three";
 import WebGLBase from "src/lib/webgl/common/main";
 import RaymarchingMaterial from './material';
+import { loadTexture } from 'src/lib/webgl/common/utils';
 
 export default class Main extends WebGLBase {
 
@@ -14,9 +15,10 @@ export default class Main extends WebGLBase {
 		})
 	}
 
-	protected _initChild(): void {
+	protected async _initChild(): Promise<void> {
+		const matcaps = await loadTexture("/images/matcaps/example_1.jpg")
 		const geo = new PlaneBufferGeometry(500, 500, 1, 1)
-		const mat = new  RaymarchingMaterial()
+		const mat = new  RaymarchingMaterial(matcaps)
 		const mesh = new Mesh(geo, mat)
 		mesh.position.setZ(-100)
 		this._scene?.add(mesh)

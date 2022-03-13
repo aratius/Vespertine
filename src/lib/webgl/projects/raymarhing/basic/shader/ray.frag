@@ -1,5 +1,12 @@
 varying vec2 v_uv;
 uniform float u_time;
+uniform sampler2D u_matcaps;
+
+vec2 get_matcap(vec3 eye, vec3 normal) {
+  vec3 reflected = reflect(eye, normal);
+  float m = 2.8284271247461903 * sqrt( reflected.z+1.0 );
+  return reflected.xy / m + 0.5;
+}
 
 // 回転
 mat4 rotation3d(vec3 axis, float angle) {
@@ -87,7 +94,10 @@ void main() {
 		color = normal;
 		vec3 dir_light = vec3(1.);
 		float diff = dot(dir_light, normal);
-		color = vec3(diff);
+
+		// matcap
+		vec2 matcap_uv = get_matcap(ray, normal);
+		color = vec3(matcap_uv, 0.);
 	}
 
 	gl_FragColor = vec4(color, 1.);
