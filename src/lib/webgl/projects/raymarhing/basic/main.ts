@@ -1,6 +1,7 @@
 
 import { Mesh, MeshBasicMaterial, PlaneBufferGeometry } from "three";
 import WebGLBase from "src/lib/webgl/common/main";
+import RaymarchingMaterial from './material';
 
 export default class Main extends WebGLBase {
 
@@ -14,7 +15,7 @@ export default class Main extends WebGLBase {
 
 	protected _initChild(): void {
 		const geo = new PlaneBufferGeometry(500, 500, 1, 1)
-		const mat = new MeshBasicMaterial({color: 0xffffff})
+		const mat = new  RaymarchingMaterial()
 		const mesh = new Mesh(geo, mat)
 		mesh.position.setZ(-100)
 		this._scene?.add(mesh)
