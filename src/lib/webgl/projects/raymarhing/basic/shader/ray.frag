@@ -46,6 +46,9 @@ void main() {
 		color = vec3(1.);
 		vec3 normal = calc_normal(pos);
 		color = normal;
+		vec3 dir_light = vec3(1.);
+		float diff = dot(dir_light, normal);
+		color = vec3(diff);
 	}
 
 	gl_FragColor = vec4(color, 1.);
