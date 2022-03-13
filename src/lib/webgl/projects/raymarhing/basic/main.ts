@@ -6,6 +6,7 @@ import RaymarchingMaterial from './material';
 export default class Main extends WebGLBase {
 
 	public _projectName: string = "basic"
+	private _material?: RaymarchingMaterial
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
@@ -19,6 +20,7 @@ export default class Main extends WebGLBase {
 		const mesh = new Mesh(geo, mat)
 		mesh.position.setZ(-100)
 		this._scene?.add(mesh)
+		this._material = mat
 	}
 
 	protected _deInitChild(): void {
@@ -30,6 +32,9 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
+		if(this._material) {
+			this._material.uniforms.u_time.value = this._elapsedTime
+		}
 	}
 
 
