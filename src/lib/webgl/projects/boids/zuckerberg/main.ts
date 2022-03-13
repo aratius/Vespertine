@@ -1,7 +1,8 @@
 
 import WebGLBase from "src/lib/webgl/common/main";
-import { loadGLTF, loadGLTFWithAnimation } from 'src/lib/webgl/common/utils';
+import { loadGLTFWithAnimation } from 'src/lib/webgl/common/utils';
 import { AmbientLight, AnimationMixer } from 'three';
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 
 export default class Main extends WebGLBase {
 
@@ -15,10 +16,16 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _initChild(): void {
+
 		this._camera?.position.set(0, 50, 100)
 		this._camera?.lookAt(0,0,0)
+
 		const ambLight = new AmbientLight(0xffffff, 1.)
 		this._scene?.add(ambLight)
+
+		const controls = new OrbitControls(this._camera!, this._renderer!.domElement)
+		controls.enableDamping = true
+		controls.update()
 
 		this._initZuckerberg()
 	}
