@@ -38,6 +38,12 @@ vec3 rotate(vec3 v, vec3 axis, float angle) {
 	return (m * vec4(v, 1.)).xyz;
 }
 
+float random (vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
+
 // pos, size
 float sdSphere( vec3 p, float s )
 {
@@ -53,12 +59,21 @@ float sdBox( vec3 p, vec3 b )
 float sdf(vec3 p) {
 	vec3 p_box = rotate(p, vec3(1.), 1. + u_time/5.);
 
+	float o = 0.;
 	float box = smin(sdBox(p_box, vec3(0.5)), sdSphere(p, 0.3), 0.5);
 	float sphere = sdSphere(p + vec3(0.), 0.7);
-	float box_sphere = mix(box, sphere, sin(u_time)*0.5+0.5);
+	o = mix(box, sphere, sin(u_time)*0.5+0.5);
+
+	for(float i = 0.; i < 10.; i++) {
+		float randOff = random(vec2(i));
+		vec3 b_pos = p + vec3(sin(randOff * 6.28), cos(randOff * 6.28), 0.) * sin(u_time + randOff) * 2.;
+		float bullet = sdSphere(b_pos, 0.2);
+		o = smin(o, bullet, 0.5);
+	}
 
 	float mouse_sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
-	return smin(box_sphere, mouse_sphere , 0.4);
+	o = smin(o, mouse_sphere , 0.4);
+	return o;
 }
 
 // 法線を求める
@@ -71,6 +86,7 @@ vec3 calc_normal(vec3 p) {
 		sdf(p + eps.yyx) - sdf(p - eps.yyx)
 	));
 }
+
 
 void main() {
 	// 正規化
@@ -110,7 +126,6 @@ void main() {
 		color = texture2D(u_matcaps, matcap_uv).rgb;
 
 		float fresnel = pow(1. + dot(ray, normal), 3.);
-		color = vec3(fresnel);
 		color = mix(color, bg, fresnel);
 	}
 
