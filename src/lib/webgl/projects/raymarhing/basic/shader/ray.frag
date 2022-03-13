@@ -1,6 +1,8 @@
 varying vec2 v_uv;
 uniform float u_time;
 uniform sampler2D u_matcaps;
+uniform vec2 u_mouse;
+uniform vec2 u_res;
 
 vec2 get_matcap(vec3 eye, vec3 normal) {
   vec3 reflected = reflect(eye, normal);
@@ -52,7 +54,7 @@ float sdf(vec3 p) {
 	vec3 p_box = rotate(p, vec3(1.), 1. + u_time/5.);
 
 	float box = sdBox(p_box, vec3(0.35));
-	float sphere = sdSphere(p, 0.5);
+	float sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
 	return smin(box, sphere , 0.1);
 }
 
@@ -68,10 +70,12 @@ vec3 calc_normal(vec3 p) {
 }
 
 void main() {
+	// 正規化
+	vec2 uv = (gl_FragCoord.xy * 2.0 - u_res) / min(u_res.x, u_res.y);
 	vec3 cam_pos = vec3(0., 0., 2.);
 
 	// 各ピクセルにRayを投げる？ z-1はカメラ位置が正の値であるため
-	vec3 ray = normalize(vec3(v_uv - vec2(0.5), -1.));
+	vec3 ray = normalize(vec3(uv, -1.));
 
 	// Rayの位置初期化
 	vec3 ray_pos = cam_pos;
@@ -95,7 +99,7 @@ void main() {
 		vec3 dir_light = vec3(1.);
 		float diff = dot(dir_light, normal);
 
-		// matcap
+		// matcap 環境マップ的なこと
 		vec2 matcap_uv = get_matcap(ray, normal);
 		color = texture2D(u_matcaps, matcap_uv).rgb;
 	}
