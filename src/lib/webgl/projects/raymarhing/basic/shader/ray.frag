@@ -53,7 +53,7 @@ float sdBox( vec3 p, vec3 b )
 float sdf(vec3 p) {
 	vec3 p_box = rotate(p, vec3(1.), 1. + u_time/5.);
 
-	float box = sdBox(p_box, vec3(0.35));
+	float box = smin(sdBox(p_box, vec3(0.35)), sdSphere(p, 0.3), 0.3);
 	float sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
 	return smin(box, sphere , 0.1);
 }
