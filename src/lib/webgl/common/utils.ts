@@ -1,4 +1,4 @@
-import { Euler, Group, Mesh, Object3D, Texture, TextureLoader, Vector2, Vector3 } from "three";
+import { AnimationMixer, Group, LoopRepeat, Object3D, Texture, TextureLoader } from "three";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter";
 import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 /**
@@ -26,6 +26,36 @@ export const loadGLTF = async (path: string): Promise<Group> => {
 	});
 
 };
+
+export const loadGLTFWithAnimation = async (path: string, loopNum: number): Promise<[Group, AnimationMixer]> => {
+	return new Promise((res, rej) => {
+		const loader = new GLTFLoader()
+		loader.load(
+			path,
+			(gltf: GLTF): void => {
+				const model = gltf.scene
+				const animations = gltf.animations
+				const mixer = new AnimationMixer(model)
+				for(let i = 0; i < animations.length; i++) {
+					console.log(animations[i]);
+					const anim = animations[i]
+					const action = mixer.clipAction(anim)
+					action.setLoop(LoopRepeat, loopNum)
+					action.clampWhenFinished = true
+					action.play()
+				}
+				res([model, mixer])
+			},
+			(xhr): void => {
+				// progress
+				console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`);
+			},
+			(err): void => {
+				rej(err);
+			}
+		)
+	})
+}
 
 
 export const exportGLTF = async (target: Object3D): Promise<void> => {

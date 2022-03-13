@@ -5,6 +5,12 @@
 		"template",
 		"templateJS",
 		{
+			"name": "boids",
+			"pages": [
+				"zuckerberg"
+			]
+		},
+		{
 			"name": "metaball",
 			"pages": [
 				"basic2D"
