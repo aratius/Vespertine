@@ -37,7 +37,7 @@ export default class Main extends WebGLBase {
 		this._camera!.position.set(0, 5, 100)
 		this._camera!.lookAt(0, 0, 0)
 
-		const geo = new PlaneBufferGeometry(50, 50, 1, 1)
+		const geo = new PlaneBufferGeometry(500, 500, 1, 1)
 		const mat = new MetaballMaterial()
 		this._mat = mat
 		const mesh = new Mesh(geo, mat)

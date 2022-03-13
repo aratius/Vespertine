@@ -2,13 +2,18 @@
 	"name": "/",
 	"pages": [
 		"fluid2D",
-		"hoge",
 		"template",
 		"templateJS",
 		{
 			"name": "metaball",
 			"pages": [
 				"basic2D"
+			]
+		},
+		{
+			"name": "raymarhing",
+			"pages": [
+				"basic"
 			]
 		}
 	]
