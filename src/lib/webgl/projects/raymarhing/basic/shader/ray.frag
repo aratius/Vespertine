@@ -1,6 +1,7 @@
 varying vec2 v_uv;
 uniform float u_time;
 
+// 回転
 mat4 rotation3d(vec3 axis, float angle) {
   axis = normalize(axis);
   float s = sin(angle);
@@ -15,6 +16,14 @@ mat4 rotation3d(vec3 axis, float angle) {
 	);
 }
 
+// スムーズに合体する
+float smin( float a, float b, float k )
+{
+    float h = clamp( 0.5+0.5*(b-a)/k, 0.0, 1.0 );
+    return mix( b, a, h ) - k*h*(1.0-h);
+}
+
+// 回転
 vec3 rotate(vec3 v, vec3 axis, float angle) {
 	mat4 m = rotation3d(axis, angle);
 	return (m * vec4(v, 1.)).xyz;
@@ -35,9 +44,9 @@ float sdBox( vec3 p, vec3 b )
 float sdf(vec3 p) {
 	vec3 p_box = rotate(p, vec3(1.), 1. + u_time/5.);
 
-	float box = sdBox(p_box, vec3(0.5));
+	float box = sdBox(p_box, vec3(0.35));
 	float sphere = sdSphere(p, 0.5);
-	return box;
+	return smin(box, sphere , 0.1);
 }
 
 // 法線を求める
