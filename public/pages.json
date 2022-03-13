@@ -2,6 +2,7 @@
 	"name": "/",
 	"pages": [
 		"fluid2D",
+		"hoge",
 		"template",
 		"templateJS",
 		{
