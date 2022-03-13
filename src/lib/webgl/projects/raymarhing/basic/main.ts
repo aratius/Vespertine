@@ -44,9 +44,9 @@ export default class Main extends WebGLBase {
 
 	private _onMouseMove = (e: MouseEvent) => {
 		const res = new Vector2(innerWidth, innerHeight)
+		// 正規化
 		const mouse = new Vector2(e.clientX, e.clientY).multiplyScalar(2).sub(res).divideScalar(Math.min(res.x, res.y))
 		this._mouse.set(-mouse.x, mouse.y)
-		console.log(this._mouse);
 
 		if(this._material) {
 			this._material.uniforms.u_mouse.value = this._mouse
