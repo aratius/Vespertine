@@ -97,7 +97,7 @@ void main() {
 
 		// matcap
 		vec2 matcap_uv = get_matcap(ray, normal);
-		color = vec3(matcap_uv, 0.);
+		color = texture2D(u_matcaps, matcap_uv).rgb;
 	}
 
 	gl_FragColor = vec4(color, 1.);
