@@ -1,3 +1,5 @@
+#pragma glslify: rotate = require("../../../../common/shader/rotate.glsl")
+
 varying vec2 v_uv;
 uniform float u_time;
 uniform sampler2D u_matcaps;
@@ -10,21 +12,6 @@ vec2 get_matcap(vec3 eye, vec3 normal) {
   return reflected.xy / m + 0.5;
 }
 
-// 回転
-mat4 rotation3d(vec3 axis, float angle) {
-  axis = normalize(axis);
-  float s = sin(angle);
-  float c = cos(angle);
-  float oc = 1.0 - c;
-
-  return mat4(
-		oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
-    oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
-    oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
-		0.0,                                0.0,                                0.0,                                1.0
-	);
-}
-
 // スムーズに合体する
 float smin( float a, float b, float k )
 {
@@ -32,11 +19,6 @@ float smin( float a, float b, float k )
     return mix( b, a, h ) - k*h*(1.0-h);
 }
 
-// 回転
-vec3 rotate(vec3 v, vec3 axis, float angle) {
-	mat4 m = rotation3d(axis, angle);
-	return (m * vec4(v, 1.)).xyz;
-}
 
 float random (vec2 st) {
     return fract(sin(dot(st.xy,
