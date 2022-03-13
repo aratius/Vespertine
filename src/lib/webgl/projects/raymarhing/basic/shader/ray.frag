@@ -93,7 +93,10 @@ void main() {
 		t += h;
 	}
 
-	vec3 color = vec3(0.);
+	float dist = length(uv);
+	vec3 bg = mix(vec3(0.), vec3(0.3), 1. - dist);
+
+	vec3 color = bg;
 	if(t < t_max) {
 		vec3 pos = cam_pos + t * ray;
 		color = vec3(1.);
@@ -105,6 +108,9 @@ void main() {
 		// matcap 環境マップ的なこと
 		vec2 matcap_uv = get_matcap(ray, normal);
 		color = texture2D(u_matcaps, matcap_uv).rgb;
+
+		float fresnel = pow(1. + dot(ray, normal), 3.);
+		color = vec3(fresnel);
 	}
 
 	gl_FragColor = vec4(color, 1.);
