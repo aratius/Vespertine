@@ -61,16 +61,11 @@ export default class CompositionPass implements Pass {
 
 					vec2 p = v_uv;
 					vec2 vel = texture2D(u_color_buffer, p).xy;
-					float len = length(vel);
 
-					const vec3 c1 = vec3(38./255., 38./255., 38./255.);
-					const vec3 c2 = vec3(242./255., 5./255., 5./255.);
-					const vec3 c3 = vec3(140./255., 3./255., 3./255.);
-					const vec3 c4 = vec3(48./255., 242./255., 223./255.);
-
-					vec3 col1 = mix(c1, c2, vel.x);
-					vec3 col2 = mix(c3, c4, vel.y);
-					vec3 col = mix(col1, col2, len);
+					vec3 col = vec3(0.);
+					col.r -= vel.x;
+					col.g -= vel.y;
+					col.b -= (vel.x + vel.y) / 2.;
 
 					gl_FragColor = vec4(col, 1.0);
 				}

@@ -42,7 +42,7 @@ export default class Main extends WebGLBase {
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
 			camera: "orthographic",
-			stats: true,
+			stats: false,
 			fillScreen: false,
 			cameraSettings: {
 				left: 0,
@@ -103,6 +103,7 @@ export default class Main extends WebGLBase {
 		this._pressurePass = new PressurePass()
 
 		this._pressureSubPass = new PressureSubtractionPass()
+
 
 		// 最終描画用パス
 		this._compositionPass = new CompositionPass()
