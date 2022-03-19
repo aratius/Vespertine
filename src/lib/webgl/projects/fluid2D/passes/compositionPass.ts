@@ -4,6 +4,7 @@ import Pass from "./pass";
 
 interface Uniforms {
 	colorBuffer?: Texture,
+	time: number
 }
 
 export default class CompositionPass implements Pass {
@@ -33,7 +34,8 @@ export default class CompositionPass implements Pass {
 
 		this.material = new RawShaderMaterial({
 			uniforms: {
-				u_color_buffer: new Uniform(Texture.DEFAULT_IMAGE)
+				u_color_buffer: new Uniform(Texture.DEFAULT_IMAGE),
+				u_time: new Uniform(0)
 			},
 			vertexShader: glslify`
 				attribute vec2 position;
@@ -50,9 +52,17 @@ export default class CompositionPass implements Pass {
 
 				varying vec2 v_uv;
 				uniform sampler2D u_color_buffer;
+				uniform float u_time;
 
 				float dot(vec2 p, float rad) {
 					return step(length(p - 0.5), rad);
+				}
+
+				vec2 rotate(vec2 v, float a) {
+					float s = sin(a);
+					float c = cos(a);
+					mat2 m = mat2(c, -s, s, c);
+					return m * v;
 				}
 
 				void main() {
@@ -61,11 +71,21 @@ export default class CompositionPass implements Pass {
 
 					vec2 p = v_uv;
 					vec2 vel = texture2D(u_color_buffer, p).xy;
+					vel = abs(vel);
+					vel = fract(vel*100.);
+					vel.x = length(vel.x);
+					vel.y = length(vel.y);
 
 					vec3 col = vec3(0.);
-					col.r -= vel.x;
-					col.g -= vel.y;
-					col.b -= (vel.x + vel.y) / 2.;
+					vec3 c1 = vec3(2. / 255., 64. / 255., 89. / 255.);
+					vec3 c2 = vec3(2. / 255., 72. / 255., 115. / 255.);
+					vec3 c3 = vec3(130. / 255., 184. / 255., 217. / 255.);
+					vec3 c4 = vec3(190. / 255., 224. / 255., 247. / 255.);
+
+					vec3 c5 = mix(c1, c4, vel.x);
+					vec3 c6 = mix(c2, c3, vel.y);
+
+					col += (c5 + c6 - 0.7) * 2.;
 
 					gl_FragColor = vec4(col, 1.0);
 				}
@@ -84,6 +104,9 @@ export default class CompositionPass implements Pass {
 	public update(uniforms: Uniforms): void {
 		if (uniforms.colorBuffer !== undefined) {
 			this.material!.uniforms.u_color_buffer.value = uniforms.colorBuffer
+		}
+		if (uniforms.time != undefined) {
+			this.material!.uniforms.u_time.value = uniforms.time
 		}
 	}
 

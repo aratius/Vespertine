@@ -171,7 +171,8 @@ export default class Main extends WebGLBase {
 		this._renderer!.setRenderTarget(null)
 		const visualization = velTex
 		this._compositionPass?.update({
-			colorBuffer: visualization
+			colorBuffer: visualization,
+			time: this._elapsedTime
 		})
 		this._renderer!.render(this._compositionPass!.scene!, this._camera!)
 	}
