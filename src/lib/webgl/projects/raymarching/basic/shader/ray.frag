@@ -128,6 +128,8 @@ void main() {
 
 		float fresnel = pow(1. + dot(ray, normal), 3.);
 		color = mix(color, bg, fresnel);
+
+		color.rgb *= diff;
 	}
 
 	gl_FragColor = vec4(color, 1.);

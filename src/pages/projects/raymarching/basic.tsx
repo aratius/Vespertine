@@ -1,7 +1,7 @@
 
 import { Component, ReactElement } from "react";
-import WebGLMain from "src/lib/webgl/projects/raymarhing/basic/main";
-import styles from "src/styles/projects/raymarhing/basic.module.scss"
+import WebGLMain from "src/lib/webgl/projects/raymarching/basic/main";
+import styles from "src/styles/projects/raymarching/basic.module.scss"
 import Head from "src/components/common/head";
 import Info from "src/components/common/info";
 

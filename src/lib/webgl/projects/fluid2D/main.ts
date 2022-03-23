@@ -42,7 +42,7 @@ export default class Main extends WebGLBase {
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
 			camera: "orthographic",
-			stats: true,
+			stats: false,
 			fillScreen: false,
 			cameraSettings: {
 				left: 0,
@@ -103,6 +103,7 @@ export default class Main extends WebGLBase {
 		this._pressurePass = new PressurePass()
 
 		this._pressureSubPass = new PressureSubtractionPass()
+
 
 		// 最終描画用パス
 		this._compositionPass = new CompositionPass()
@@ -170,7 +171,8 @@ export default class Main extends WebGLBase {
 		this._renderer!.setRenderTarget(null)
 		const visualization = velTex
 		this._compositionPass?.update({
-			colorBuffer: visualization
+			colorBuffer: visualization,
+			time: this._elapsedTime
 		})
 		this._renderer!.render(this._compositionPass!.scene!, this._camera!)
 	}
