@@ -21,6 +21,12 @@
 			"pages": [
 				"basic"
 			]
+		},
+		{
+			"name": "slitScan",
+			"pages": [
+				"sea"
+			]
 		}
 	]
 }
