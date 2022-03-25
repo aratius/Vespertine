@@ -72,7 +72,7 @@ export default class CompositionPass implements Pass {
 					vec2 p = v_uv;
 					vec2 vel = texture2D(u_color_buffer, p).xy;
 					vel = abs(vel);
-					vel = fract(vel*100.);
+					vel = sin(vel*5.);
 					vel.x = length(vel.x);
 					vel.y = length(vel.y);
 

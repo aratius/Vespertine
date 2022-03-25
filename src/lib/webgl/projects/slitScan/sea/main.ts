@@ -138,7 +138,9 @@ export default class Main extends WebGLBase {
 			// video.srcObject = localMediaStream;
 			video.src = "/movies/sea_01.mp4";
 			// video.autoplay = true
+			video.volume = 0
 			video.loop = true
+			video.playbackRate = 0.5
 
 			video.addEventListener("loadeddata", () => {
 				video.play();
