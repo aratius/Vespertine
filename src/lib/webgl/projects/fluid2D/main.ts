@@ -75,7 +75,7 @@ export default class Main extends WebGLBase {
 			const a = e.alpha
 			const b = e.beta
 			const g = e.gamma
-			this._power = new Vector2(a!, b!)
+			this._power = new Vector2(b! / 30, a! / 30)
 		}, true)
 		// window.addEventListener("devicemotion", (e) => {
 		// 	this._power = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
