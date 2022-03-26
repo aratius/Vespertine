@@ -40,9 +40,9 @@ export default class FeedbackRT {
 	}
 
 	public deInit(): void {
-		this._renderTarget.dispose();
-		(this._plane.material as Material).dispose();
-		this._rtScene.remove(this._plane)
+		this._renderTarget!.dispose();
+		(this._plane!.material as Material).dispose();
+		this._rtScene!.remove(this._plane!)
 	}
 
 	/**
@@ -51,7 +51,7 @@ export default class FeedbackRT {
 	 */
 	public render(renderer: WebGLRenderer): void {
 		renderer.setRenderTarget(this._renderTarget)
-		renderer.render(this._rtScene, this._rtCamera)
+		renderer.render(this._rtScene!, this._rtCamera!)
 		renderer.setRenderTarget(null)
 	}
 
@@ -61,24 +61,24 @@ export default class FeedbackRT {
 	 * @param val
 	 */
 	public setUniform<T>(uniformName: string, val: T): void {
-		if (!(uniformName in this._planeMaterial.uniforms)) console.error("uniform does not exist in this._planeMaterial");
-		this._planeMaterial.uniforms[uniformName].value = val
+		if (!(uniformName in this._planeMaterial!.uniforms)) console.error("uniform does not exist in this._planeMaterial");
+		this._planeMaterial!.uniforms[uniformName].value = val
 	}
 
 	public resize(size: Vector2): void {
-		this._rtCamera.left = -size.x / 2
-		this._rtCamera.right = size.x / 2
-		this._rtCamera.top = size.x / 2
-		this._rtCamera.bottom = -size.x / 2
-		this._rtCamera.updateProjectionMatrix()
+		this._rtCamera!.left = -size.x / 2
+		this._rtCamera!.right = size.x / 2
+		this._rtCamera!.top = size.x / 2
+		this._rtCamera!.bottom = -size.x / 2
+		this._rtCamera!.updateProjectionMatrix()
 
-		this._renderTarget.setSize(size.x, size.y)
+		this._renderTarget!.setSize(size.x, size.y)
 
-		this._plane.scale.set(size.x, size.y, 1)
+		this._plane!.scale.set(size.x, size.y, 1)
 	}
 
 	public setTime(time: number): void {
-		this._planeMaterial.setTime(time)
+		this._planeMaterial!.setTime(time)
 	}
 
 }
