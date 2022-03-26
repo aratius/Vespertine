@@ -1,5 +1,5 @@
 import WebGLBase from "src/lib/webgl/common/main";
-import { Texture, Vector2 } from "three";
+import { Texture, Vector2, Vector3 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
 import RenderTarget from "./renderTarget";
 import AdvectionPass from "./passes/advectionPass";
@@ -31,6 +31,7 @@ export default class Main extends WebGLBase {
 	private _velocityTarget?: RenderTarget
 	private _divergenceTarget?: RenderTarget
 	private _pressureTarget?: RenderTarget
+	private _power: Vector2 = new Vector2(0.0)
 
 	private get _resolution(): Vector2 {
 		return new Vector2(
@@ -68,6 +69,11 @@ export default class Main extends WebGLBase {
 			this._renderer!.domElement,
 			this._resolution.x / this._resolution.y
 		)
+
+		window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
+
+
+		}, true)
 
 		this._initRenderTargets()
 	}
