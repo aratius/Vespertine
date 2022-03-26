@@ -70,19 +70,16 @@ export default class Main extends WebGLBase {
 			this._resolution.x / this._resolution.y
 		)
 
-		// window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
-		// 	console.log(e);
-		// 	const a = e.alpha
-		// 	const b = e.beta
-		// 	const g = e.gamma
-		// 	this._power = new Vector3(
-
-		// 	)
-
-		// }, true)
-		window.addEventListener("devicemotion", (e) => {
-			this._power = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
-		})
+		window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
+			console.log(e);
+			const a = e.alpha
+			const b = e.beta
+			const g = e.gamma
+			this._power = new Vector2(a!, b!)
+		}, true)
+		// window.addEventListener("devicemotion", (e) => {
+		// 	this._power = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
+		// })
 
 		this._initRenderTargets()
 	}
@@ -143,7 +140,7 @@ export default class Main extends WebGLBase {
 			// input: this._externalForceManager?.inputTouches[0].input,
 			radius: this._config.radius,
 			velocity: velTex,
-			power: this._power
+			power: this._power,
 		})
 		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
