@@ -123,15 +123,16 @@ export default class Main extends WebGLBase {
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
-		if (this._externalForceManager!.inputTouches.length > 0) {
-			this._externalForcePass?.update({
-				input: this._externalForceManager?.inputTouches[0].input,
-				radius: this._config.radius,
-				velocity: velTex
-			})
-			velTex = this._velocityTarget!.set(this._renderer!)
-			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
-		}
+		// if (this._externalForceManager!.inputTouches.length > 0) {
+		this._externalForcePass?.update({
+			// input: this._externalForceManager?.inputTouches[0].input,
+			radius: this._config.radius,
+			velocity: velTex,
+			power: new Vector2(Math.sin(this._elapsedTime), 0)
+		})
+		velTex = this._velocityTarget!.set(this._renderer!)
+		this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
+		// }
 
 		// 画面の端に壁を置く
 		this._boundaryPass?.update({ velocity: velTex })
