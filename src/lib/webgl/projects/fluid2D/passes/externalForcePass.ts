@@ -187,8 +187,8 @@ export default class ExternalForcePass implements Pass {
 					// vec4 external_force = vec4(0.);
 					// external_force.xy += get_force(u_input);
 					vec4 base = vec4(u_power, 0., 0.);
-					base.r *= snoise(vec3(v_uv*5., 0.)) * 0.2;
-					base.g *= snoise(vec3(v_uv*5., 0.)) * 0.2;
+					base.r *= (snoise(vec3(v_uv*5., 0.))*0.5+0.5) * 0.4;
+					base.g *= (snoise(vec3(v_uv*5., 0.))*0.5+0.5) * 0.4;
 					gl_FragColor = texture2D(u_velocity, v_uv) + base * 0.1;
 				}
 
