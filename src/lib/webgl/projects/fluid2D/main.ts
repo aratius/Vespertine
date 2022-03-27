@@ -145,8 +145,8 @@ export default class Main extends WebGLBase {
 			// input: this._externalForceManager?.inputTouches[0].input,
 			radius: this._config.radius,
 			velocity: velTex,
-			// power: new Vector2(Math.sin(this._elapsedTime) * 5, 0),
-			power: this._power,
+			power: new Vector2(Math.sin(this._elapsedTime) * 5, Math.sin(this._elapsedTime) * 5),
+			// power: this._power,
 		})
 		velTex = this._velocityTarget!.set(this._renderer!)
 		this._renderer!.render(this._externalForcePass!.scene!, this._camera!)

@@ -85,7 +85,7 @@ export default class CompositionPass implements Pass {
 					vec3 c5 = mix(c1, c4, abs(vel.x));
 					vec3 c6 = mix(c2, c3, abs(vel.y));
 
-					col += (c5 + c6 - 0.7) * 2.;
+					col += (c5 + c6 - 0.9) * 3.;
 
 					gl_FragColor = vec4(col, 1.0);
 				}
