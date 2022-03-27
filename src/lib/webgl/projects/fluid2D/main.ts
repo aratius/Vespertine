@@ -42,7 +42,7 @@ export default class Main extends WebGLBase {
 	}
 
 	private get _power(): Vector2 {
-		return this._powerAcc.clone().normalize().multiply(this._powerRot.clone().normalize()).multiplyScalar(3)
+		return this._powerAcc.clone().add(this._powerRot)
 	}
 
 	constructor(canvas: HTMLCanvasElement) {
