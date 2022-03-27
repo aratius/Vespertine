@@ -82,8 +82,8 @@ export default class CompositionPass implements Pass {
 					vec3 c3 = vec3(166. / 255., 138. / 255., 128. / 255.);
 					vec3 c4 = vec3(242. / 255., 113. / 255., 102. / 255.);
 
-					vec3 c5 = mix(c1, c4, vel.x);
-					vec3 c6 = mix(c2, c3, vel.y);
+					vec3 c5 = mix(c1, c4, abs(vel.x));
+					vec3 c6 = mix(c2, c3, abs(vel.y));
 
 					col += (c5 + c6 - 0.7) * 2.;
 
