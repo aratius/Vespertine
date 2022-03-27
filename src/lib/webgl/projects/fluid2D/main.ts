@@ -31,13 +31,18 @@ export default class Main extends WebGLBase {
 	private _velocityTarget?: RenderTarget
 	private _divergenceTarget?: RenderTarget
 	private _pressureTarget?: RenderTarget
-	private _power: Vector2 = new Vector2(0.0)
+	private _powerAcc: Vector2 = new Vector2(0.0)
+	private _powerRot: Vector2 = new Vector2(0.0)
 
 	private get _resolution(): Vector2 {
 		return new Vector2(
 			innerWidth * this._config.scale,
 			innerHeight * this._config.scale
 		)
+	}
+
+	private get _power(): Vector2 {
+		return this._powerAcc.clone().multiply(this._powerRot)
 	}
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -75,11 +80,11 @@ export default class Main extends WebGLBase {
 			const a = e.alpha
 			const b = e.beta
 			const g = e.gamma
-			this._power = new Vector2(g! / 30, -b! / 60)
+			this._powerRot = new Vector2(g! / 30, -b! / 60)
 		}, true)
-		// window.addEventListener("devicemotion", (e) => {
-		// 	this._power = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
-		// })
+		window.addEventListener("devicemotion", (e) => {
+			this._powerAcc = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
+		})
 
 		this._initRenderTargets()
 	}
@@ -140,6 +145,7 @@ export default class Main extends WebGLBase {
 			// input: this._externalForceManager?.inputTouches[0].input,
 			radius: this._config.radius,
 			velocity: velTex,
+			// power: new Vector2(Math.sin(this._elapsedTime) * 5, 0),
 			power: this._power,
 		})
 		velTex = this._velocityTarget!.set(this._renderer!)
