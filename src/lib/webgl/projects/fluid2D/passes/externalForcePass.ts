@@ -3,11 +3,12 @@ import { glslify } from "../utis/glsl";
 import Pass from "./pass";
 
 interface Uniforms {
-	velocity?: Texture
+	velocity?: Texture;
 	input?: Vector4,
 	aspect?: number,
 	radius?: number,
-	power?: Vector2
+	power?: Vector2,
+	mouse: number;
 }
 
 /**
@@ -17,12 +18,12 @@ interface Uniforms {
  */
 export default class ExternalForcePass implements Pass {
 
-	public scene?: Scene
-	public material?: RawShaderMaterial
+	public scene?: Scene;
+	public material?: RawShaderMaterial;
 
 	constructor(readonly aspect: number, readonly radius: number) {
 
-		this.scene = new Scene()
+		this.scene = new Scene();
 
 		const geometry = new BufferGeometry();
 		geometry.setAttribute(
@@ -49,7 +50,9 @@ export default class ExternalForcePass implements Pass {
 				u_input: new Uniform(new Vector4()),
 				u_radius: new Uniform(radius),
 				u_velocity: new Uniform(Texture.DEFAULT_IMAGE),
-				u_power: new Uniform(new Vector3())
+				u_power: new Uniform(new Vector3()),
+				u_mouse: new Uniform(0),
+				u_res: new Uniform(new Vector2(innerWidth, innerHeight))
 			},
 			vertexShader: glslify`
 				attribute vec2 position;
@@ -74,6 +77,8 @@ export default class ExternalForcePass implements Pass {
 				uniform float u_radius;
 				uniform sampler2D u_velocity;
 				uniform vec2 u_power;
+				uniform float u_mouse;
+				uniform vec2 u_res;
 
 				vec3 mod289(vec3 x) {
 				return x - floor(x * (1.0 / 289.0)) * 289.0;
@@ -184,47 +189,52 @@ export default class ExternalForcePass implements Pass {
 				}
 
 				void main() {
-					// vec4 external_force = vec4(0.);
-					// external_force.xy += get_force(u_input);
+					vec4 external_force = vec4(0.);
+					external_force.xy += get_force(u_input);
 					vec4 base = vec4(u_power, 0., 0.);
-					base.r *= snoise(vec3(v_uv*5., 0.)) * 0.2;
-					base.g *= snoise(vec3(v_uv*5., 0.)) * 0.2;
-					gl_FragColor = texture2D(u_velocity, v_uv) + base * 0.1;
+					base.r *= snoise(vec3(v_uv*8. * normalize(u_res), 0.)) * 0.2;
+					base.g *= snoise(vec3(v_uv*8. * normalize(u_res), 0.)) * 0.2;
+					gl_FragColor = texture2D(u_velocity, v_uv) + base * 0.1 + external_force * u_mouse;
 				}
 
 			`,
 			depthTest: false,
 			depthWrite: false
-		})
+		});
 
-		const mesh = new Mesh(geometry, this.material)
-		mesh.frustumCulled = false
-		this.scene.add(mesh)
+		const mesh = new Mesh(geometry, this.material);
+		mesh.frustumCulled = false;
+		this.scene.add(mesh);
 	}
 
 	update(uniforms: Uniforms): void {
 		// アスペクト比
 		if (uniforms.aspect !== undefined) {
-			this.material!.uniforms.u_aspect.value = uniforms.aspect
+			this.material!.uniforms.u_aspect.value = uniforms.aspect;
 		}
 
 		// 外圧（マウス）
 		if (uniforms.input !== undefined) {
-			this.material!.uniforms.u_input.value = uniforms.input
+			this.material!.uniforms.u_input.value = uniforms.input;
+		}
+
+		// 外圧（マウス）
+		if (uniforms.mouse !== undefined) {
+			this.material!.uniforms.u_mouse.value = uniforms.mouse;
 		}
 
 		// マウス半径
 		if (uniforms.radius !== undefined) {
-			this.material!.uniforms.u_radius.value = uniforms.radius
+			this.material!.uniforms.u_radius.value = uniforms.radius;
 		}
 
 		// 速度テクスチャ
 		if (uniforms.velocity !== undefined) {
-			this.material!.uniforms.u_velocity.value = uniforms.velocity
+			this.material!.uniforms.u_velocity.value = uniforms.velocity;
 		}
 
 		if (uniforms.power !== undefined) {
-			this.material!.uniforms.u_power.value = uniforms.power
+			this.material!.uniforms.u_power.value = uniforms.power;
 		}
 	}
 
