@@ -72,20 +72,20 @@ export default class CompositionPass implements Pass {
 					vec2 p = v_uv;
 					vec2 vel = texture2D(u_color_buffer, p).xy;
 					vel = abs(vel);
-					vel = sin(vel*5.);
+					vel = sin(vel*1.);
 					vel.x = length(vel.x);
 					vel.y = length(vel.y);
 
 					vec3 col = vec3(0.);
-					vec3 c1 = vec3(2. / 255., 64. / 255., 89. / 255.);
-					vec3 c2 = vec3(2. / 255., 72. / 255., 115. / 255.);
-					vec3 c3 = vec3(130. / 255., 184. / 255., 217. / 255.);
-					vec3 c4 = vec3(190. / 255., 224. / 255., 247. / 255.);
+					vec3 c1 = vec3(242. / 255., 236. / 255., 228. / 255.);
+					vec3 c2 = vec3(115. / 255., 94. / 255., 81. / 255.);
+					vec3 c3 = vec3(166. / 255., 138. / 255., 128. / 255.);
+					vec3 c4 = vec3(242. / 255., 113. / 255., 102. / 255.);
 
-					vec3 c5 = mix(c1, c4, vel.x);
-					vec3 c6 = mix(c2, c3, vel.y);
+					vec3 c5 = mix(c1, c4, abs(vel.x));
+					vec3 c6 = mix(c2, c3, abs(vel.y));
 
-					col += (c5 + c6 - 0.7) * 2.;
+					col += (c5 + c6 - 0.8) * 2.5;
 
 					gl_FragColor = vec4(col, 1.0);
 				}

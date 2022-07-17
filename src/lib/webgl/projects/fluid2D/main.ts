@@ -1,5 +1,5 @@
 import WebGLBase from "src/lib/webgl/common/main";
-import { Texture, Vector2 } from "three";
+import { Texture, Vector2, Vector3 } from "three";
 import { ExternalForceManager } from "./externalForceManager";
 import RenderTarget from "./renderTarget";
 import AdvectionPass from "./passes/advectionPass";
@@ -31,12 +31,18 @@ export default class Main extends WebGLBase {
 	private _velocityTarget?: RenderTarget
 	private _divergenceTarget?: RenderTarget
 	private _pressureTarget?: RenderTarget
+	private _powerAcc: Vector2 = new Vector2(0.0)
+	private _powerRot: Vector2 = new Vector2(0.0)
 
 	private get _resolution(): Vector2 {
 		return new Vector2(
 			innerWidth * this._config.scale,
 			innerHeight * this._config.scale
 		)
+	}
+
+	private get _power(): Vector2 {
+		return this._powerAcc.clone().multiplyScalar(2.5).add(this._powerRot).multiplyScalar(3)
 	}
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -68,6 +74,17 @@ export default class Main extends WebGLBase {
 			this._renderer!.domElement,
 			this._resolution.x / this._resolution.y
 		)
+
+		window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
+			console.log(e);
+			const a = e.alpha
+			const b = e.beta
+			const g = e.gamma
+			this._powerRot = new Vector2(g! / 30, -b! / 60)
+		}, true)
+		window.addEventListener("devicemotion", (e) => {
+			this._powerAcc = new Vector2(e.acceleration!.x!, e.acceleration!.y!)
+		})
 
 		this._initRenderTargets()
 	}
@@ -117,15 +134,17 @@ export default class Main extends WebGLBase {
 		this._renderer!.render(this._advectionPass!.scene!, this._camera!)
 
 		// 外圧を加える
-		if (this._externalForceManager!.inputTouches.length > 0) {
-			this._externalForcePass?.update({
-				input: this._externalForceManager?.inputTouches[0].input,
-				radius: this._config.radius,
-				velocity: velTex
-			})
-			velTex = this._velocityTarget!.set(this._renderer!)
-			this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
-		}
+		// if (this._externalForceManager!.inputTouches.length > 0) {
+		this._externalForcePass?.update({
+			// input: this._externalForceManager?.inputTouches[0].input,
+			radius: this._config.radius,
+			velocity: velTex,
+			// power: new Vector2(Math.sin(this._elapsedTime) * 5, Math.sin(this._elapsedTime) * 5),
+			power: this._power,
+		})
+		velTex = this._velocityTarget!.set(this._renderer!)
+		this._renderer!.render(this._externalForcePass!.scene!, this._camera!)
+		// }
 
 		// 画面の端に壁を置く
 		this._boundaryPass?.update({ velocity: velTex })
