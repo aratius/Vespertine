@@ -30,9 +30,9 @@ export default class Index extends Component {
             <div className={styles.container}>
 				<Info
 					title="fluid2D"
-					shareText=""
-					shareUrl=""
-					twitterId=""
+					shareText="これ好き"
+					shareUrl="https://vesp.aualrxse.com/projects/fluid2D"
+					twitterId="aualrxse"
 					cc={`© 2022 | quick-sand`}
 					details={[
 						[
