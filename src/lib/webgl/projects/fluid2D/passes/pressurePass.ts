@@ -61,18 +61,24 @@ export default class PressurePass implements Pass {
 				uniform float u_alpha;
 				uniform float u_beta;
 				uniform sampler2D u_previous_iteration;
-				uniform sampler2D u_divergence;
+				uniform sampler2D u_divergence;  // 発散
 
 				void main() {
 					vec2 texel_size = vec2(dFdx(v_uv.x), dFdy(v_uv.y));
 
+					// 周囲の圧力
 					vec4 x0 = texture(u_previous_iteration, v_uv - vec2(texel_size.x, 0.));
 					vec4 x1 = texture(u_previous_iteration, v_uv + vec2(texel_size.x, 0.));
 					vec4 y0 = texture(u_previous_iteration, v_uv - vec2(0., texel_size.y));
 					vec4 y1 = texture(u_previous_iteration, v_uv + vec2(0., texel_size.y));
 
+					// 発散 どのくらい流入してどのくらい流出したか
 					vec4 d = texture(u_divergence, v_uv);
 
+					// これは圧力Textureに書き込まれる値
+					// 周囲の圧力と発散を足して、定数(0<x<1)を掛ける
+					// それを何回は繰り返す
+					// 何回も掛けるところがBlurの処理に似ている？
 					glC = (x0 + x1 + y0 + y1 + u_alpha * d) * u_beta;
 				}
 

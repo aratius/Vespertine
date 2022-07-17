@@ -75,8 +75,8 @@ export default class AdvectionPass implements Pass {
 					// 前回のuv情報でテクスチャを描画しつつ減衰係数を掛ける？
 					// NOTE: そのテクスチャの次の速度を決める？
 					// NOTE: 今回のテクスチャを前回のUVでtexture2Dしている？ てことは次回の値が予測できるのか？？
-					// NOTE: 流体の流れ = 対象のテクセルのベクトル それを計算している？ <= 真理？
-					// NOTE: なので別にナブラを使う必要はなくて、過去の値を参照することベクトルを計算している？
+					// NOTE: 流体の流れ = 対象のテクセルのベクトル それを計算している？
+					// NOTE: なので別にナブラを使う必要はなくて、過去の値を参照することでベクトルを計算している？
 					gl_FragColor = texture2D(u_input_texture, prev_uv) * (1. - u_decay);
 				}
 			`,

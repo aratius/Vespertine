@@ -8,8 +8,11 @@ interface Uniforms {
 	pressure?: Texture;
 }
 
-// 圧力勾配を抽象化(非圧縮条件を満たすように補正するってこと？)し、
-// 発散ゼロ（流出入がおなじ）の速度ベクトル場を得る
+/**
+ * 圧力勾配を抽象化(非圧縮条件を満たすように補正するってこと？)し、
+ * 発散ゼロ（流出入がおなじ）の速度ベクトル場を得る
+ * 圧力のスカラー場の偏微分？
+ */
 export default class PressureSubtractionPass implements Pass {
 
 	public scene?: Scene
@@ -63,12 +66,15 @@ export default class PressureSubtractionPass implements Pass {
 				void main() {
 					vec2 texel_size = vec2(dFdx(v_uv.x), dFdy(v_uv.y));
 
-					// u_pressureは多分スカラー場
+					// 圧力のスカラー場の偏微分
+
+					// 周囲ピクセルの圧力を求める
 					float x0 = texture(u_pressure, v_uv - vec2(texel_size.x, 0.)).r;
 					float x1 = texture(u_pressure, v_uv + vec2(texel_size.x, 0.)).r;
 					float y0 = texture(u_pressure, v_uv - vec2(0., texel_size.y)).r;
 					float y1 = texture(u_pressure, v_uv + vec2(0., texel_size.y)).r;
 
+					// 現在の速度から周りのピクセルの圧力の微分をもとめる
 					vec2 v = texture(u_velocity, v_uv).xy;
 					v -= 0.5 * vec2(x1 - x0, y1 - y0);
 

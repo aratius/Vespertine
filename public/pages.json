@@ -1,6 +1,7 @@
 {
 	"name": "/",
 	"pages": [
+		"circlePacking",
 		"fluid2D",
 		"template",
 		"templateJS",
@@ -13,11 +14,11 @@
 		{
 			"name": "metaball",
 			"pages": [
-				"basic2D"
+				"basic2d"
 			]
 		},
 		{
-			"name": "raymarhing",
+			"name": "raymarching",
 			"pages": [
 				"basic"
 			]

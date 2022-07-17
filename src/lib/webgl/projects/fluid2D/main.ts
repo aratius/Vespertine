@@ -93,17 +93,11 @@ export default class Main extends WebGLBase {
 		const initialVelTexture = velInitTarget.set(this._renderer!)
 		this._renderer?.render(velInitPass.scene!, this._camera!)
 
-		// 移流パス
 		this._advectionPass = new AdvectionPass(initialVelTexture, initialVelTexture, 0)
-
 		this._boundaryPass = new BoundaryPass()
-
 		this._divergencePass = new DivergencePass()
-
 		this._pressurePass = new PressurePass()
-
 		this._pressureSubPass = new PressureSubtractionPass()
-
 
 		// 最終描画用パス
 		this._compositionPass = new CompositionPass()
