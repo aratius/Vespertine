@@ -28,6 +28,12 @@
 			"pages": [
 				"sea"
 			]
+		},
+		{
+			"name": "st",
+			"pages": [
+				"sphere"
+			]
 		}
 	]
 }
