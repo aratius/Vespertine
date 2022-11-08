@@ -35,14 +35,16 @@ export default class Tree extends Group {
 
 		let nearest: TreePoint = this._points[0];
 		let nearestDist = 9999;
-		this._points.forEach((p, i) => {
+		for (let i = 0; i < this._points.length; i++) {
+			const p = this._points[i];
 			const dist = p.position.distanceTo(point.position);
-			if (dist == 0) return;
+			if (dist == 0) break;
 			if (dist < nearestDist) {
 				nearestDist = dist;
 				nearest = p;
 			}
-		});
+			if (dist < 1) break;
+		}
 
 		if (nearest != null) {
 			const toNearestVec = nearest.position.clone().sub(point.position);
