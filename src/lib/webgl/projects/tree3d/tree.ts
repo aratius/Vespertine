@@ -1,3 +1,4 @@
+import gsap from "gsap";
 import { Group, Vector3 } from "three";
 import TreePoint from "./treePoint";
 
@@ -47,7 +48,9 @@ export default class Tree extends Group {
 			const toNearestVec = nearest.position.clone().sub(point.position);
 			toNearestVec.sub(toNearestVec.clone().normalize().multiplyScalar(point.scale.x + nearest.scale.x));
 			const newPos = point.position.clone().add(toNearestVec);
-			point.position.set(newPos.x, newPos.y, newPos.z);
+			// point.position.set(newPos.x, newPos.y, newPos.z);
+			const { x, y, z } = newPos;
+			gsap.to(point.position, { x, y, z, duration: 0, ease: "expo.out" });
 		}
 	}
 

@@ -31,10 +31,10 @@ export default class Main extends WebGLBase {
 
 		let cnt = 0;
 		let timer = setInterval(() => {
-			this._tree?.create(new Vector3((Math.random() - .5) * 10, Math.random() * 10, (Math.random() - .5) * 10), Math.random() * .05);
+			this._tree?.create(new Vector3((Math.random() - .5) * 5, Math.random() * 5, (Math.random() - .5) * 5), Math.random() * .05);
 			cnt++;
-			if (cnt > 1000) clearInterval(timer);
-		}, 10);
+			if (cnt > 3000) clearInterval(timer);
+		}, 1);
 	}
 
 	protected _deInitChild(): void {
@@ -48,8 +48,8 @@ export default class Main extends WebGLBase {
 	protected _updateChild(): void {
 		this._tree?.update();
 		const t = this._elapsedTime * .3;
-		this._camera?.position.set(Math.sin(t) * 10, 10, Math.cos(t) * 10);
-		this._camera?.lookAt(0, 3, 0);
+		this._camera?.position.set(Math.sin(t) * 5, 5, Math.cos(t) * 5);
+		this._camera?.lookAt(0, 2, 0);
 	}
 
 }
