@@ -12,7 +12,10 @@ export default class Main extends WebGLBase {
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
-			camera: "perspective"
+			camera: "perspective",
+			cameraSettings: {
+				perspective: 500
+			}
 		});
 	}
 
@@ -41,7 +44,7 @@ export default class Main extends WebGLBase {
 		// backLight.castShadow = true;
 		this._scene?.add(dirLight, dirLight2, backLight);
 
-		this._camera?.position.set(0, 5, 7);
+		this._camera?.position.set(0, 3, 4);
 		this._camera?.lookAt(0, 2.5, 0);
 
 		this._renderer!.shadowMap.enabled = true;
@@ -49,9 +52,9 @@ export default class Main extends WebGLBase {
 		this._composer = new EffectComposer(this._renderer!);
 		this._composer.addPass(new RenderPass(this._scene!, this._camera!));
 		const dof = new DepthOfFieldEffect(this._camera!, {
-			focusDistance: 7,
-			focalLength: 0,
-			bokehScale: 10,
+			focusDistance: 3,
+			focalLength: 1,
+			bokehScale: 5,
 			height: 480
 		});
 		this._composer.addPass(
@@ -70,13 +73,20 @@ export default class Main extends WebGLBase {
 		this._scene?.add(room);
 
 		let cnt = 0;
-		let size = .13;
+		let size = .1;
 		let timer = setInterval(() => {
-			this._tree?.create(new Vector3((Math.random() - .5) * 5, Math.random() * 5 + .4, (Math.random() - .5) * 5), Math.random() * size);
+			this._tree?.create(
+				new Vector3(
+					(Math.random() - .5) * 4.5,
+					Math.random() * 4.5 + .4,
+					(Math.random() - .5) * 4.5
+				),
+				Math.random() * size + .01
+			);
 			cnt++;
 			size -= .0001;
 			if (cnt > 1000) clearInterval(timer);
-		}, 1);
+		}, 10);
 	}
 
 	protected _deInitChild(): void {
