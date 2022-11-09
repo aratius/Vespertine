@@ -11,9 +11,10 @@ export default class TreePoint extends Mesh {
 	 * @param mat
 	 */
 	constructor() {
-		const geo = new SphereBufferGeometry(1, 30, 20);
-		const mat = new MeshStandardMaterial({ color: 0xffffff, roughness: .4, metalness: .9 });
-		super(geo, mat);
+		super(
+			new SphereBufferGeometry(1, 30, 20),
+			new MeshStandardMaterial({ color: 0xffffff, roughness: .4, metalness: .9 })
+		);
 
 		this.castShadow = true;
 	}
