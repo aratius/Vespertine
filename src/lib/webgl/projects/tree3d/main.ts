@@ -2,7 +2,7 @@
 import WebGLBase from "src/lib/webgl/common/main";
 import { AmbientLight, BackSide, BoxBufferGeometry, Camera, DirectionalLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PointLight, SphereBufferGeometry, Vector3 } from "three";
 import Tree from "./tree";
-import { EffectComposer, DepthOfFieldEffect, EffectPass, RenderPass } from "postprocessing";
+import { EffectComposer, DepthOfFieldEffect, EffectPass, RenderPass, BloomEffect, SelectiveBloomEffect, BlendFunction } from "postprocessing";
 
 export default class Main extends WebGLBase {
 
@@ -22,7 +22,7 @@ export default class Main extends WebGLBase {
 	protected _initChild(): void {
 
 		const dirLight = new DirectionalLight(0xffaabb, .5);
-		dirLight.position.set(10, 20, 10);
+		dirLight.position.set(10, 10, 10);
 		dirLight.lookAt(0, 0, 0);
 		dirLight.castShadow = true;
 		dirLight.shadow.mapSize.width = 2048;
@@ -30,7 +30,7 @@ export default class Main extends WebGLBase {
 		dirLight.shadow.radius = 10;
 		dirLight.shadow.blurSamples = 25;
 		const dirLight2 = new DirectionalLight(0xaaffbb, .5);
-		dirLight2.position.set(-10, 20, 10);
+		dirLight2.position.set(-10, 10, 10);
 		dirLight2.lookAt(0, 0, 0);
 		dirLight2.castShadow = true;
 		dirLight2.castShadow = true;
@@ -38,11 +38,10 @@ export default class Main extends WebGLBase {
 		dirLight2.shadow.mapSize.height = 2048;
 		dirLight2.shadow.radius = 10;
 		dirLight2.shadow.blurSamples = 25;
-		// const ambLight = new AmbientLight(0xbaffff, .5);
 		const backLight = new PointLight(0xaabbff, .5, 10, .1);
 		backLight.position.set(0, 1, -1);
-		// backLight.castShadow = true;
-		this._scene?.add(dirLight, dirLight2, backLight);
+		const ambLight = new AmbientLight(0xbaffff, .2);
+		this._scene?.add(dirLight, dirLight2, backLight, ambLight);
 
 		this._camera?.position.set(0, 3, 4);
 		this._camera?.lookAt(0, 2.5, 0);
@@ -51,14 +50,21 @@ export default class Main extends WebGLBase {
 
 		this._composer = new EffectComposer(this._renderer!);
 		this._composer.addPass(new RenderPass(this._scene!, this._camera!));
-		const dof = new DepthOfFieldEffect(this._camera!, {
+		const dofEffect = new DepthOfFieldEffect(this._camera!, {
 			focusDistance: 3,
 			focalLength: 1,
 			bokehScale: 5,
 			height: 480
 		});
+		const bloomEffect = new SelectiveBloomEffect(this._scene!, this._camera!, {
+			blendFunction: BlendFunction.ADD,
+			mipmapBlur: true,
+			luminanceThreshold: 0.7,
+			luminanceSmoothing: 0.3,
+			intensity: 30.0
+		});
 		this._composer.addPass(
-			new EffectPass(this._camera!, dof)
+			new EffectPass(this._camera!, dofEffect, bloomEffect)
 		);
 
 
@@ -78,12 +84,10 @@ export default class Main extends WebGLBase {
 		let cnt = 0;
 		let size = .1;
 		let timer = setInterval(() => {
+			const dist = Math.pow(Math.random(), .3) * 2.4;
+			const dir = new Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
 			this._tree?.create(
-				new Vector3(
-					(Math.random() - .5) * 4.5,
-					Math.random() * 4.5 + .4,
-					(Math.random() - .5) * 4.5
-				),
+				dir.multiplyScalar(dist).add(new Vector3(0, 2.5, 0)),
 				Math.random() * size + .01
 			);
 			cnt++;

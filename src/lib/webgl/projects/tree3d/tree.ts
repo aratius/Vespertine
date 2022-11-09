@@ -37,22 +37,38 @@ export default class Tree extends Group {
 		let nearestDist = 9999;
 		for (let i = 0; i < this._points.length; i++) {
 			const p = this._points[i];
-			const dist = p.position.distanceTo(point.position);
+			const dist = p.targetPosition.distanceTo(point.position);
 			if (dist == 0) break;
 			if (dist < nearestDist) {
 				nearestDist = dist;
 				nearest = p;
 			}
-			if (dist < 1) break;
 		}
 
 		if (nearest != null) {
-			const toNearestVec = nearest.position.clone().sub(point.position);
+			const toNearestVec = nearest.targetPosition.clone().sub(point.position);
 			toNearestVec.sub(toNearestVec.clone().normalize().multiplyScalar(point.scale.x + nearest.scale.x));
 			const newPos = point.position.clone().add(toNearestVec);
-			// point.position.set(newPos.x, newPos.y, newPos.z);
+			point.targetPosition = newPos;
 			const { x, y, z } = newPos;
-			gsap.to(point.position, { x, y, z, duration: 0, ease: "expo.out" });
+			const randomEase = () => {
+				const eases = [
+					"expo.in",
+					"sine.in",
+					"quad.in",
+					"circ.in",
+					// "back.in",
+				];
+				return eases[Math.floor(Math.random() * eases.length)];
+			};
+			gsap.timeline()
+				.fromTo(point.scale, { x: 0, y: 0, z: 0 }, { x: point.scale.x, y: point.scale.y, z: point.scale.z, duration: 1, ease: "elastic.out" })
+				// .to(point.position, { x, y, z, duration: 1, ease: "expo.in" });
+				.add(
+					gsap.timeline().to(point.position, { x, duration: 1, ease: randomEase() }, 0)
+						.to(point.position, { y, duration: 1, ease: randomEase() }, 0)
+						.to(point.position, { z, duration: 1, ease: randomEase() }, 0)
+				);
 		}
 	}
 
