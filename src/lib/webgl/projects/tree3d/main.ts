@@ -1,6 +1,6 @@
 
 import WebGLBase from "src/lib/webgl/common/main";
-import { AmbientLight, Camera, DirectionalLight, PerspectiveCamera, Vector3 } from "three";
+import { AmbientLight, BackSide, BoxBufferGeometry, Camera, DirectionalLight, Mesh, MeshStandardMaterial, PerspectiveCamera, PointLight, SphereBufferGeometry, Vector3 } from "three";
 import Tree from "./tree";
 import { EffectComposer, DepthOfFieldEffect, EffectPass, RenderPass } from "postprocessing";
 
@@ -18,14 +18,24 @@ export default class Main extends WebGLBase {
 
 	protected _initChild(): void {
 
-		const dirLight = new DirectionalLight(0xffaafb, .7);
+		const dirLight = new DirectionalLight(0xffaabb, .5);
 		dirLight.position.set(10, 20, 10);
 		dirLight.lookAt(0, 0, 0);
-		const ambLight = new AmbientLight(0xbaffff, .5);
-		this._scene?.add(dirLight, ambLight);
+		dirLight.castShadow = true;
+		const dirLight2 = new DirectionalLight(0xaaffbb, .5);
+		dirLight2.position.set(-10, 20, 10);
+		dirLight2.lookAt(0, 0, 0);
+		dirLight2.castShadow = true;
+		// const ambLight = new AmbientLight(0xbaffff, .5);
+		const backLight = new PointLight(0xaabbff, .5, 10, .1);
+		backLight.position.set(0, 1, -2);
+		backLight.castShadow = true;
+		this._scene?.add(dirLight, dirLight2, backLight);
 
-		this._camera?.position.set(0, 10, 10);
-		this._camera?.lookAt(0, 3, 0);
+		this._camera?.position.set(0, 5, 10);
+		this._camera?.lookAt(0, 2, 0);
+
+		this._renderer!.shadowMap.enabled = true;
 
 		this._composer = new EffectComposer(this._renderer!);
 		this._composer.addPass(new RenderPass(this._scene!, this._camera!));
@@ -44,11 +54,19 @@ export default class Main extends WebGLBase {
 		this._tree.init();
 		this._scene?.add(this._tree);
 
+		const room = new Mesh(new SphereBufferGeometry(1, 100, 100), new MeshStandardMaterial({ color: 0xffffff, side: BackSide }));
+		room.scale.multiplyScalar(2.5);
+		room.position.y += 2.5;
+		room.receiveShadow = true;
+		this._scene?.add(room);
+
 		let cnt = 0;
+		let size = .1;
 		let timer = setInterval(() => {
-			this._tree?.create(new Vector3((Math.random() - .5) * 5, Math.random() * 5, (Math.random() - .5) * 5), Math.random() * .05);
+			this._tree?.create(new Vector3((Math.random() - .5) * 5, Math.random() * 5, (Math.random() - .5) * 5), Math.random() * size);
 			cnt++;
-			if (cnt > 3000) clearInterval(timer);
+			size -= .0001;
+			if (cnt > 1000) clearInterval(timer);
 		}, 1);
 	}
 
@@ -63,8 +81,7 @@ export default class Main extends WebGLBase {
 	protected _updateChild(): void {
 		this._tree?.update();
 		const t = this._elapsedTime * .3;
-		this._camera?.position.set(Math.sin(t) * 5, 5, Math.cos(t) * 5);
-		this._camera?.lookAt(0, 2, 0);
+		this._tree!.rotation.y = t;
 		this._composer?.render();
 	}
 

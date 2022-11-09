@@ -1,4 +1,4 @@
-import { Mesh, MeshStandardMaterial, SphereBufferGeometry } from "three";
+import { Mesh, MeshBasicMaterial, MeshStandardMaterial, SphereBufferGeometry } from "three";
 
 export default class TreePoint extends Mesh {
 
@@ -13,6 +13,8 @@ export default class TreePoint extends Mesh {
 		const geo = new SphereBufferGeometry(1, 30, 20);
 		const mat = new MeshStandardMaterial({ color: 0xffffff });
 		super(geo, mat);
+
+		this.castShadow = true;
 	}
 
 }
