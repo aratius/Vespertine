@@ -25,14 +25,15 @@ export default class _PerspectiveCamera extends PerspectiveCamera implements Cam
 	private _userOptions: PerspectiveCameraOptions = {};
 
 	constructor(options: PerspectiveCameraOptions) {
-		_PerspectiveCamera.perspective = options?.perspective || _PerspectiveCamera.defaultOptions.perspective;
 		super(
 			options?.fov || _PerspectiveCamera.defaultOptions.fov,
 			options?.aspect || _PerspectiveCamera.defaultOptions.aspect,
 			options?.near || _PerspectiveCamera.defaultOptions.near,
 			options?.far || _PerspectiveCamera.defaultOptions.far
 		);
+		_PerspectiveCamera.perspective = options?.perspective || _PerspectiveCamera.defaultOptions.perspective;
 		this._userOptions = options;
+		this.fillScreen();
 
 	}
 
