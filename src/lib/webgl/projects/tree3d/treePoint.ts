@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, MeshDepthMaterial, MeshLambertMaterial, MeshNormalMaterial, MeshPhongMaterial, MeshStandardMaterial, SphereBufferGeometry, Vector3 } from "three";
+import { Mesh, MeshStandardMaterial, SphereBufferGeometry, Vector3 } from "three";
 
 export default class TreePoint extends Mesh {
 
