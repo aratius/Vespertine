@@ -14,16 +14,16 @@ export default class RecursionFiles extends Component<Props> {
 			<ol>
 				<p>{this.props.name}</p>
 				{
-					this.props.pages.map((page: (string|Props)) => {
+					this.props.pages.map((page: (string|Props), i: number) => {
 						if(typeof page == "string") {
 							return (
-								<li>
+								<li key={i}>
 									<a href={`/projects/${this.props.dir}/${page}`}>{page}</a>
 								</li>
 							)
 						} else {
 							return (
-								<li className={styles.dir}>
+								<li className={styles.dir} key={i}>
 									<RecursionFiles
 										name={page.name}
 										dir={`${this.props.name}/${page.name}`}
