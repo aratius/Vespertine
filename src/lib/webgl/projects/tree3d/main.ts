@@ -43,7 +43,7 @@ export default class Main extends WebGLBase {
 		const ambLight = new AmbientLight(0xbaffff, .2);
 		this._scene?.add(dirLight, dirLight2, backLight, ambLight);
 
-		this._camera?.position.set(0, 2.5, 6);
+		this._camera?.position.set(0, 3, 4);
 		this._camera?.lookAt(0, 2.5, 0);
 
 		this._renderer!.shadowMap.enabled = true;
@@ -63,56 +63,36 @@ export default class Main extends WebGLBase {
 			luminanceSmoothing: 0.3,
 			intensity: 30.0
 		});
-		// this._composer.addPass(
-		// 	new EffectPass(this._camera!, dofEffect, bloomEffect)
-		// );
+		this._composer.addPass(
+			new EffectPass(this._camera!, dofEffect, bloomEffect)
+		);
 
 
+		this._tree = new Tree();
+		this._tree.init();
+		this._scene?.add(this._tree);
 
 		const room = new Mesh(
-			new BoxBufferGeometry(1, 1, 1),
+			new SphereBufferGeometry(1, 100, 100),
 			new MeshStandardMaterial({ color: 0xffffff, side: BackSide })
 		);
-		room.scale.multiplyScalar(5);
+		room.scale.multiplyScalar(2.5);
 		room.position.y += 2.5;
 		room.receiveShadow = true;
 		this._scene?.add(room);
 
-		const tree1 = new Tree();
-		tree1.position.set(-2.5, 0, -2.5);
-		const tree2 = new Tree();
-		tree2.position.set(2.5, 0, -2.5);
-		const tree3 = new Tree();
-		tree3.position.set(-2.5, 0, 2.5);
-		const tree4 = new Tree();
-		tree4.position.set(2.5, 0, 2.5);
-		const tree5 = new Tree();
-		tree5.position.set(-2.5, 5, -2.5);
-		const tree6 = new Tree();
-		tree6.position.set(2.5, 5, -2.5);
-		const tree7 = new Tree();
-		tree7.position.set(-2.5, 5, 2.5);
-		const tree8 = new Tree();
-		tree8.position.set(2.5, 5, 2.5);
-		const trees = [tree1, tree2, tree3, tree4, tree5, tree6, tree7, tree8];
-		trees.forEach(t => this._scene?.add(t));
-
 		let cnt = 0;
 		let size = .1;
 		let timer = setInterval(() => {
-			trees.forEach(tree => {
-				tree.create(
-					new Vector3(
-						(Math.random() - .5) * 2 * 4,
-						Math.random() * 4,
-						(Math.random() - .5) * 2 * 4
-					).sub(tree.position.clone()),
-					Math.random() * size + .01
-				);
-			});
+			const dist = Math.pow(Math.random(), .3) * 2.4;
+			const dir = new Vector3(Math.random() - .5, Math.random() - .5, Math.random() - .5).normalize();
+			this._tree?.create(
+				dir.multiplyScalar(dist).add(new Vector3(0, 2.5, 0)),
+				Math.random() * size + .01
+			);
 			cnt++;
 			size -= .0001;
-			if (cnt > 200) clearInterval(timer);
+			if (cnt > 1000) clearInterval(timer);
 		}, 10);
 	}
 
@@ -127,9 +107,7 @@ export default class Main extends WebGLBase {
 	protected _updateChild(): void {
 		this._tree?.update();
 		const t = this._elapsedTime * .3;
-		this._camera?.position.setX(Math.sin(t) * 6);
-		this._camera?.position.setZ(Math.cos(t) * 6);
-		this._camera?.lookAt(0, 3, 0);
+		this._tree!.rotation.y = t;
 		this._composer?.render();
 	}
 
