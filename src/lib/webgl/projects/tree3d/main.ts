@@ -66,7 +66,10 @@ export default class Main extends WebGLBase {
 		this._tree.init();
 		this._scene?.add(this._tree);
 
-		const room = new Mesh(new SphereBufferGeometry(1, 100, 100), new MeshStandardMaterial({ color: 0xffffff, side: BackSide }));
+		const room = new Mesh(
+			new SphereBufferGeometry(1, 100, 100),
+			new MeshStandardMaterial({ color: 0xffffff, side: BackSide })
+		);
 		room.scale.multiplyScalar(2.5);
 		room.position.y += 2.5;
 		room.receiveShadow = true;
