@@ -9,7 +9,8 @@ export default class PaperMaterial extends ShaderMaterial {
 			fragmentShader,
 			vertexShader,
 			uniforms: {
-				uTwist: new Uniform(0),
+				uTime: new Uniform(0),
+				uTwist: new Uniform(5),
 				uBarCode: new Uniform(tex)
 			},
 			side: DoubleSide,

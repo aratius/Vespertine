@@ -1,9 +1,11 @@
+#pragma glslify: snoise2 = require(glsl-noise/simplex/2d)
 #define PI 3.14159265
 
 varying vec3 vNormal;
 varying vec3 vNormalRaw;
 varying vec2 vUv;
 
+uniform float uTime;
 uniform float uTwist;
 
 //
@@ -12,12 +14,17 @@ float atan2(in float y, in float x){
 }
 
 //
-vec3 getTwistPos(vec3 p) {
+vec3 getTwistPos(vec3 p, float angleOffset) {
 	float angle = atan2(p.x, p.z);
-	angle += (p.y - 5.) * uTwist;
+	angle += angleOffset;
 	float vecHoriLen = length(p.xz);
 	vec2 newPosHori = vec2(sin(angle), cos(angle)) * vecHoriLen;
 	return vec3(newPosHori.x, p.y, newPosHori.y);
+}
+
+//
+float getTwistNoise(float y) {
+	return snoise2(vec2(y * .05, uTime * .15));
 }
 
 //
@@ -30,10 +37,10 @@ void main() {
 	vec3 posT = pos + tangent;
 	vec3 posB = pos + binormal;
 
-	pos = getTwistPos(pos);
+	pos = getTwistPos(pos, getTwistNoise(pos.y) * uTwist);
 
-	posT = getTwistPos(posT);
-	posB = getTwistPos(posB);
+	posT = getTwistPos(posT, getTwistNoise(posT.y) * uTwist);
+	posB = getTwistPos(posB, getTwistNoise(posB.y) * uTwist);
 
 	vec3 modifiedTangent = posT - pos;
 	vec3 modifiedBinormal = posB - pos;

@@ -34,7 +34,8 @@ export default class Main extends WebGLBase {
 
 	protected _updateChild(): void {
 		if (this._mesh != null) {
-			this._mesh.material.uniforms.uTwist = new Uniform(Math.pow(Math.sin(this._elapsedTime * .5), 5) * 2);
+			// this._mesh.material.uniforms.uTwist = new Uniform(Math.pow(Math.sin(this._elapsedTime * .5), 5) * 5);
+			this._mesh.material.uniforms.uTime = new Uniform(this._elapsedTime);
 		}
 	}
 
