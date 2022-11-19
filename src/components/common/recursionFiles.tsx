@@ -7,6 +7,9 @@ interface Props {
 	pages: (string|Props)[]
 }
 
+/**
+ * 再帰
+ */
 export default class RecursionFiles extends Component<Props> {
 
 	public render(): ReactElement {
