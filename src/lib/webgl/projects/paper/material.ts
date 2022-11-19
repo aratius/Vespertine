@@ -10,7 +10,7 @@ export default class PaperMaterial extends ShaderMaterial {
 			vertexShader,
 			uniforms: {
 				uTime: new Uniform(0),
-				uTwist: new Uniform(10),
+				uTwist: new Uniform(0),
 				uBarCode: new Uniform(tex)
 			},
 			transparent: true

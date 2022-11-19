@@ -20,14 +20,14 @@ vec3 getTwistPos(vec3 p, float angleOffset) {
 	float vecHoriLen = length(p.xz);
 	vec2 newPosHori = vec2(sin(angle), cos(angle)) * vecHoriLen;
 	vec3 newPos = vec3(newPosHori.x, p.y, newPosHori.y);
-	newPos.x += snoise2(vec2(p.y, uTime) * .1);
-	newPos.z += snoise2(vec2(p.y, uTime + 10.) * .1);
+	newPos.x += snoise2(vec2(p.y, uTime) * .2) * angleOffset * .02;
+	newPos.z += snoise2(vec2(p.y, uTime + 10.) * .2) * angleOffset * .02;
 	return newPos;
 }
 
 //
 float getTwistNoise(float y) {
-	return snoise2(vec2(y * .03 - uTime * .1, uTime * 0.05));
+	return snoise2(vec2(y * .03 - uTime * .03, uTime * 0.05));
 }
 
 //
