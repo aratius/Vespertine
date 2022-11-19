@@ -1,16 +1,13 @@
 
-import { AmbientLight, BoxBufferGeometry, DirectionalLight, DoubleSide, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, ShaderMaterial, Uniform } from "three";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import { BoxBufferGeometry, Mesh, Uniform } from "three";
 import WebGLBase from "src/lib/webgl/common/main";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import gsap, { unitize } from "gsap";
 import { loadTexture } from "../../common/utils";
 import PaperMaterial from "./material";
 
 export default class Main extends WebGLBase {
 
 	public _projectName: string = "paper";
-	private _mesh: (Mesh<BoxBufferGeometry, ShaderMaterial> | null) = null;
+	private _mesh: (Mesh<BoxBufferGeometry, PaperMaterial> | null) = null;
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {

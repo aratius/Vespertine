@@ -24,7 +24,7 @@ vec3 getTwistPos(vec3 p, float angleOffset) {
 
 //
 float getTwistNoise(float y) {
-	return snoise2(vec2(y * .05, uTime * .15));
+	return snoise2(vec2(y * .03 - uTime * .1, uTime * 0.05));
 }
 
 //
