@@ -24,7 +24,7 @@ void main() {
 	color.rgb *= amount;
 
 	// 紙の質感
-	color.rgb += vec3(snoise2(coord * vec2(100., 3000.)) * .05);
+	color.rgb += vec3(snoise2(coord * vec2(100., 100.)) * .1);
 
 	gl_FragColor = color;
 }

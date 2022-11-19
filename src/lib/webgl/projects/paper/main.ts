@@ -39,23 +39,25 @@ export default class Main extends WebGLBase {
 		}
 
 		const bgGeo = new BoxBufferGeometry(1, 1, .001);
-		const bgMat = new MeshStandardMaterial({ color: 0xaaaaaa, metalness: .9, roughness: .4 });
+		const bgMat = new MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 1 });
 		const bg = new Mesh(bgGeo, bgMat);
 		bg.scale.multiplyScalar(100);
 		bg.position.setZ(-2);
 		bg.receiveShadow = true;
 		this._scene?.add(bg);
 
-		const dirLight = new DirectionalLight(0xffffff, .1);
+		const dirLight = new DirectionalLight(0xffffff, .5);
 		dirLight.position.set(0, 3, 10);
 		dirLight.lookAt(0, 0, 0);
 		dirLight.castShadow = true;
 		dirLight.shadow.mapSize.width = 2048;
 		dirLight.shadow.mapSize.height = 2048;
-		dirLight.shadow.radius = 20;
+		dirLight.shadow.radius = 10;
 		dirLight.shadow.blurSamples = 24;
 		dirLight.shadow.camera.top = 10;
 		dirLight.shadow.camera.bottom = -10;
+		dirLight.shadow.camera.right = 10;
+		dirLight.shadow.camera.left = -10;
 
 		this._scene?.add(dirLight);
 
@@ -115,7 +117,7 @@ export default class Main extends WebGLBase {
 		if (this._timeline != null) this._timeline.kill();
 		this._timeline = gsap.timeline();
 		this._meshes.forEach((mesh, i) => {
-			this._timeline!.to(mesh.position, { x: (i - PAPER_NUM / 2) * 2, z: 0, duration: 1, ease: "expo.out" }, 0);
+			this._timeline!.to(mesh.position, { x: (i - PAPER_NUM / 2) * 1.5, z: 0, duration: 1, ease: "expo.out" }, 0);
 			this._timeline!.to(mesh.material.uniforms.uTwist, { value: 5, duration: 1, ease: "sine.out" }, 0);
 			this._timeline!.to((mesh.customDepthMaterial as ShaderMaterial).uniforms.uTwist, { value: 5, duration: 1, ease: "sine.out" }, 0);
 		});
