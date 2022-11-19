@@ -10,7 +10,7 @@ const vec3 lightVec = - vec3(1., 1., 1.);
 void main() {
 	vec2 coord = vUv;
 	const float interval = 1.3;
-	coord = fract(coord * vec2(1., 30. + uTime) / interval + vec2(0., uTime * -10.)) * interval;
+	coord = fract(coord * vec2(1., 30.) / interval + vec2(0., uTime * -8.)) * interval;
 	vec4 color = texture2D(uBarCode, coord);
 	if(coord.y > .97 || coord.y < .03) color.rgb = vec3(1.);
 	if(vNormalRaw.z == -1.) color.rgb = vec3(1.);  // 裏面

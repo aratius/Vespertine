@@ -19,7 +19,10 @@ vec3 getTwistPos(vec3 p, float angleOffset) {
 	angle += angleOffset;
 	float vecHoriLen = length(p.xz);
 	vec2 newPosHori = vec2(sin(angle), cos(angle)) * vecHoriLen;
-	return vec3(newPosHori.x, p.y, newPosHori.y);
+	vec3 newPos = vec3(newPosHori.x, p.y, newPosHori.y);
+	newPos.x += snoise2(vec2(p.y, uTime) * .1);
+	newPos.z += snoise2(vec2(p.y, uTime + 10.) * .1);
+	return newPos;
 }
 
 //
@@ -45,8 +48,11 @@ void main() {
 	vec3 modifiedTangent = posT - pos;
 	vec3 modifiedBinormal = posB - pos;
 
+
 	vNormalRaw = normal;
-	vNormal = normalize(cross(modifiedTangent, modifiedBinormal));
+	vec3 newNormal = normalize(cross(modifiedTangent, modifiedBinormal));
+	vNormal = newNormal;
 	vUv = uv;
+
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);
 }

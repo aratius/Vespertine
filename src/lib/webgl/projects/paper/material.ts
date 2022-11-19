@@ -13,7 +13,6 @@ export default class PaperMaterial extends ShaderMaterial {
 				uTwist: new Uniform(10),
 				uBarCode: new Uniform(tex)
 			},
-			side: DoubleSide,
 			transparent: true
 		});
 	}
