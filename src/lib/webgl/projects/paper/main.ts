@@ -4,6 +4,7 @@ import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import WebGLBase from "src/lib/webgl/common/main";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import gsap, { unitize } from "gsap";
+import { loadTexture } from "../../common/utils";
 
 export default class Main extends WebGLBase {
 
@@ -39,14 +40,17 @@ export default class Main extends WebGLBase {
 	/**
 	 *
 	 */
-	private _createPaper(): void {
+	private async _createPaper(): Promise<void> {
 		// const geo = new PlaneBufferGeometry(1, 10, 10, 100);
 		const geo = new BoxBufferGeometry(1, 10, .01, 30, 300, 1);
+		const tex = await loadTexture("/images/barCode.jpg");
 		const mat = new ShaderMaterial({
 			vertexShader: `
 				#define PI 3.14159265
 
 				varying vec3 vNormal;
+				varying vec3 vNormalRaw;
+				varying vec2 vUv;
 
 				uniform float uTwist;
 
@@ -82,26 +86,40 @@ export default class Main extends WebGLBase {
 					vec3 modifiedTangent = posT - pos;
 					vec3 modifiedBinormal = posB - pos;
 
+					vNormalRaw = normal;
 					vNormal = normalize(cross(modifiedTangent, modifiedBinormal));
-
+					vUv = uv;
 					gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);
 				}
 			`,
 			fragmentShader: `
 
 				varying vec3 vNormal;
+				varying vec3 vNormalRaw;
+				varying vec2 vUv;
+
+				uniform sampler2D uBarCode;
+
 				const vec3 lightVec = - vec3(1., 1., 1.);
 
 				void main() {
+					vec2 coord = vUv;
+					const float interval = 1.3;
+					coord = fract(coord * vec2(1., 30.) / interval) * interval;
+					vec4 color = texture2D(uBarCode, coord);
+					if(coord.y > .97 || coord.y < .03) color.rgb = vec3(1.);
+					if(vNormalRaw.z < 0.) color.rgb = vec3(1.);
+
 					float amount = dot(vNormal, normalize(lightVec));
-					// amount = abs(amount);
 					amount += 1.;
 					amount *= .5;
-					gl_FragColor = vec4(vec3(amount), 1.);
+					color.rgb *= amount;
+					gl_FragColor = color;
 				}
 			`,
 			uniforms: {
-				uTwist: new Uniform(0)
+				uTwist: new Uniform(0),
+				uBarCode: new Uniform(tex)
 			},
 			side: DoubleSide,
 			transparent: true
