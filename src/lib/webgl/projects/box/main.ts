@@ -1,5 +1,5 @@
 
-import { BoxBufferGeometry, ConeBufferGeometry, Mesh, MeshBasicMaterial, Uniform, Vector3 } from "three";
+import { AmbientLight, BoxBufferGeometry, ConeBufferGeometry, DirectionalLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, Uniform, Vector3 } from "three";
 import WebGLBase from "src/lib/webgl/common/main";
 import BoxMaterial from "./material/boxMaterial";
 
@@ -22,14 +22,17 @@ export default class Main extends WebGLBase {
 		this._camera?.lookAt(0, 0, 0);
 
 		this._lightPoint = new Mesh(
-			new ConeBufferGeometry(1, 2, 10, 1, true),
-			new MeshBasicMaterial({ color: 0xff0000 })
+			new ConeBufferGeometry(1, 2, 10, 1, false),
+			new MeshStandardMaterial({ color: 0xffffff })
 		);
 		this._lightPoint.scale.multiplyScalar(.1);
 		this._lightPoint.position.set(1, 1, 1);
 		this._lightPoint.lookAt(0, 0, 0);
 		this._lightPoint.rotateX(-Math.PI / 2);
-		this._scene?.add(this._lightPoint);
+		const l = new DirectionalLight(0xffffff, .5);
+		l.position.set(1, 1, 1);
+		l.lookAt(0, 0, 0);
+		this._scene?.add(this._lightPoint, new AmbientLight(0xffffff, .4), l);
 
 		this._createBox();
 	}
