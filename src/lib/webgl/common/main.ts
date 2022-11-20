@@ -52,7 +52,7 @@ export default class WebGLBase {
 	 * render
 	 */
 	public render(): void {
-		// if (this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera);
+		if (this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera);
 	}
 
 	/**

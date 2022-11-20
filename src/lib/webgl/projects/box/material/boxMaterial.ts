@@ -1,4 +1,4 @@
-import { ShaderMaterial, Uniform } from "three";
+import { DoubleSide, ShaderMaterial, Uniform } from "three";
 import fragmentShader from "./shader/box.frag";
 import vertexShader from "./shader/box.vert";
 
@@ -10,7 +10,9 @@ export default class BoxMaterial extends ShaderMaterial {
 			vertexShader,
 			uniforms: {
 				uTime: new Uniform(0)
-			}
+			},
+			transparent: true,
+			side: DoubleSide
 		});
 	}
 

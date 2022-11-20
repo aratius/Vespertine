@@ -48,7 +48,6 @@ void main() {
 	vec3 modifiedTangent = posT - pos;
 	vec3 modifiedBinormal = posB - pos;
 
-
 	vNormalRaw = normal;
 	vec3 newNormal = normalize(cross(modifiedTangent, modifiedBinormal));
 	vNormal = newNormal;

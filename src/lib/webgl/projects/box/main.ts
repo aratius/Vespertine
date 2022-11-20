@@ -1,9 +1,6 @@
 
-import { AmbientLight, BoxBufferGeometry, BufferGeometry, DirectionalLight, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry } from "three";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import { BoxBufferGeometry, Mesh } from "three";
 import WebGLBase from "src/lib/webgl/common/main";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
-import gsap from "gsap";
 import BoxMaterial from "./material/boxMaterial";
 
 export default class Main extends WebGLBase {
@@ -13,13 +10,15 @@ export default class Main extends WebGLBase {
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
-			camera: "perspective"
+			camera: "perspective",
+			stats: true
 		});
 	}
 
 	protected _initChild(): void {
 
-		this._camera?.position.setZ(10);
+		this._camera?.position.set(3, 3, 3);
+		this._camera?.lookAt(0, 0, 0);
 
 		this._createBox();
 	}
@@ -35,6 +34,9 @@ export default class Main extends WebGLBase {
 	protected _updateChild(): void {
 		if (this._box)
 			this._box!.material.setTime(this._elapsedTime);
+		const t = this._elapsedTime * .4;
+		this._camera?.position.set(Math.sin(t) * 3, 3, Math.cos(t) * 3);
+		this._camera?.lookAt(0, 0, 0);
 	}
 
 	/**
@@ -44,8 +46,6 @@ export default class Main extends WebGLBase {
 		const geo = new BoxBufferGeometry(1, 1, 1, 300, 300, 300);
 		const mat = new BoxMaterial();
 		this._box = new Mesh(geo, mat);
-		this._box.rotateX(Math.PI / 4);
-		this._box.rotateY(Math.PI / 4);
 		this._scene?.add(this._box);
 	}
 

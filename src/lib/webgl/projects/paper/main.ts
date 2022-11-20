@@ -58,6 +58,15 @@ export default class Main extends WebGLBase {
 		dirLight.shadow.camera.bottom = -10;
 		dirLight.shadow.camera.right = 10;
 		dirLight.shadow.camera.left = -10;
+		window.addEventListener("mousemove", (e) => {
+			const x = (e.clientX - innerWidth / 2) / (innerWidth / 2) * 2;
+			const y = -(e.clientY - innerHeight / 2) / (innerHeight / 2) * 2 + 3;
+			gsap.to(dirLight.position, {
+				x, y, duration: 1, onUpdate: () => {
+					dirLight.lookAt(0, 0, 0);
+				}
+			});
+		});
 
 		this._scene?.add(dirLight);
 
