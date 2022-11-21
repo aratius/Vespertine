@@ -4,18 +4,16 @@
 varying vec2 vUv;
 varying vec3 vNormalRaw;
 varying vec3 vNormal;
+varying float vReceiveLight;
 
 uniform float uTime;
-uniform vec3 uLightVec;
 
 // TODO: point lightの実装
 void main() {
-	float receiveLight = dot(vNormal, normalize(uLightVec));
-	receiveLight += 1.;
-	receiveLight *= .5;
+
 	// vec4 color = vec4(.7, .55, .85, 1.);
 	vec4 color = vec4(1.);
-	color.rgb *= receiveLight;
+	color.rgb *= vReceiveLight;
 
 	float line = 0.;
 	if(vNormalRaw.x == 1. || vNormalRaw.x == -1.) {

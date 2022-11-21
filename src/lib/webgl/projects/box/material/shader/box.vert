@@ -4,8 +4,13 @@
 varying vec2 vUv;
 varying vec3 vNormalRaw;
 varying vec3 vNormal;
+varying float vReceiveLight;
 
 uniform float uTime;
+uniform vec3 uLightVec;
+
+const vec3 uPointLightPos = vec3(.5, .5, .5);
+const float uPointLightDist = .5;
 
 vec3 getOffset(vec3 pos) {
 	vec2 face = vec2(0.);
@@ -42,11 +47,23 @@ void main() {
 	vec3 modifiedTangent = posT - pos;
 	vec3 modifiedBinormal = posB - pos;
 
-	vNormalRaw = normal;
 	vec3 newNormal = normalize(cross(modifiedTangent, modifiedBinormal));
-	vNormal = newNormal;
+
+	vec4 worldPosition = modelMatrix * vec4( pos, 1.0 );
+
+	float receiveLight = dot(newNormal, normalize(uLightVec));
+	receiveLight += 1.;
+	receiveLight *= .5;
+
+	float pLightDist = distance(worldPosition.xyz, uPointLightPos);
+	float distNorm = clamp(uPointLightDist - pLightDist, 0., 1.) / uPointLightDist;
+	receiveLight += distNorm;
 
 	vUv = uv;
+	vNormalRaw = normal;
+	vNormal = newNormal;
+	vReceiveLight = receiveLight;
 
-	gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.);
+	vec4 mvPosition =  viewMatrix * worldPosition;
+	gl_Position = projectionMatrix * mvPosition;
 }
