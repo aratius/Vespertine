@@ -7,10 +7,10 @@ varying vec3 vNormal;
 varying float vReceiveLight;
 
 uniform float uTime;
-uniform vec3 uLightVec;
+uniform vec3 uDirectionalLightVec;
 
-const vec3 uPointLightPos = vec3(.5, .5, .5);
-const float uPointLightDist = .5;
+uniform vec3 uPointLightPos;
+uniform float uPointLightDist;
 
 vec3 getOffset(vec3 pos) {
 	vec2 face = vec2(0.);
@@ -51,7 +51,7 @@ void main() {
 
 	vec4 worldPosition = modelMatrix * vec4( pos, 1.0 );
 
-	float receiveLight = dot(newNormal, normalize(uLightVec));
+	float receiveLight = dot(newNormal, normalize(uDirectionalLightVec));
 	receiveLight += 1.;
 	receiveLight *= .5;
 

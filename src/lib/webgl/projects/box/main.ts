@@ -59,7 +59,10 @@ export default class Main extends WebGLBase {
 		this._lightPoint?.lookAt(0, 0, 0);
 		this._lightPoint?.rotateX(-Math.PI / 2);
 
-		this._box!.material.uniforms.uLightVec = new Uniform(new Vector3(0, 0, 0).sub(this._lightPoint!.position));
+		this._box!.material.uniforms.uDirectionalLightVec = new Uniform(new Vector3(0, 0, 0).sub(this._lightPoint!.position));
+
+		const t3 = this._elapsedTime * 2;
+		this._box!.material.uniforms.uPointLightPos = new Uniform(new Vector3(Math.sin(t3) * .5, Math.cos(t3 * .9) * .5, Math.cos(t3) * .5));
 	}
 
 	/**
