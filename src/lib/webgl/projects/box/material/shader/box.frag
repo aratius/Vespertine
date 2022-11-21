@@ -1,4 +1,5 @@
 #include <common>
+#pragma glslify: snoise2 = require(glsl-noise/simplex/2d)
 
 varying vec2 vUv;
 varying vec3 vNormalRaw;
@@ -14,7 +15,7 @@ void main() {
 	receiveLight *= .5;
 	// vec4 color = vec4(.7, .55, .85, 1.);
 	vec4 color = vec4(1.);
-	color.rgb *= pow(receiveLight + .1, 3.);
+	color.rgb *= receiveLight;
 
 	float line = 0.;
 	if(vNormalRaw.x == 1. || vNormalRaw.x == -1.) {
@@ -31,7 +32,8 @@ void main() {
 	} else {
 		line = vUv.x;
 	}
-	color.a *= step(fract(line * 30.), .1);
+
+	color.a *= step(fract(line * 30.), .5);
 
 	gl_FragColor = color;
 }

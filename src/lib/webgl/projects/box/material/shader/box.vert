@@ -1,4 +1,5 @@
 #pragma glslify: snoise4 = require(glsl-noise/simplex/4d)
+#include <common>
 
 varying vec2 vUv;
 varying vec3 vNormalRaw;
@@ -16,13 +17,19 @@ vec3 getOffset(vec3 pos) {
 		face = pos.xy;
 	}
 	float fixVert = (2. * (.5 - abs(face.x))) * (2. * (.5 - abs(face.y)));
-	return normal * (snoise4(vec4(pos * 5., uTime)) + 1.) * fixVert * .2;
+	vec3 offset = normal * snoise4(vec4(pos * 1., uTime)) * fixVert * .2;
+	offset += length(pos) * -pos * .3;
+	return offset;
+}
+
+vec3 orthogonal(vec3 v) {
+  return normalize(abs(v.x) > abs(v.z) ? vec3(-v.y, v.x, 0.0) : vec3(0.0, -v.z, v.y));
 }
 
 void main() {
 	vec3 pos = position;
 
-	vec3 tangent = cross(normal, vec3(1., 1., 1.));
+	vec3 tangent = orthogonal(normal);
 	vec3 binormal = cross(tangent, normal);
 
 	vec3 posT = pos + tangent;

@@ -18,6 +18,8 @@ export default class Main extends WebGLBase {
 
 	protected _initChild(): void {
 
+		this._renderer?.setPixelRatio(devicePixelRatio);
+
 		this._camera?.position.set(3, 3, 3);
 		this._camera?.lookAt(0, 0, 0);
 
