@@ -1,3 +1,4 @@
+#pragma glslify: snoise3 = require(glsl-noise/simplex/3d)
 #pragma glslify: snoise4 = require(glsl-noise/simplex/4d)
 #include <common>
 
@@ -8,9 +9,10 @@ varying float vReceiveLight;
 
 uniform float uTime;
 uniform vec3 uDirectionalLightVec;
-
 uniform vec3 uPointLightPos;
 uniform float uPointLightDist;
+uniform float uBoxAmount;
+
 
 vec3 getOffset(vec3 pos) {
 	vec2 face = vec2(0.);
@@ -22,8 +24,13 @@ vec3 getOffset(vec3 pos) {
 		face = pos.xy;
 	}
 	float fixVert = (2. * (.5 - abs(face.x))) * (2. * (.5 - abs(face.y)));
-	vec3 offset = normal * snoise4(vec4(pos * 1., uTime)) * fixVert * .2;
-	offset += length(pos) * -pos * .3;
+	vec3 offset = vec3(
+		snoise3(vec3(pos.yz * 30., uTime * .3)),
+		snoise3(vec3(pos.xz * 30., uTime * .3 + 10.)),
+		snoise3(vec3(pos.xy * 30., uTime * .3 + 20.))
+	) * .01 * uBoxAmount;
+	// vec3 offset = normal * snoise4(vec4(pos * 1., uTime)) * fixVert * .2;
+	offset += length(pos) * -pos * (1.41421356/2.) * uBoxAmount;
 	return offset;
 }
 
@@ -37,8 +44,8 @@ void main() {
 	vec3 tangent = orthogonal(normal);
 	vec3 binormal = cross(tangent, normal);
 
-	vec3 posT = pos + tangent;
-	vec3 posB = pos + binormal;
+	vec3 posT = pos + tangent * .001;
+	vec3 posB = pos + binormal * .001;
 
 	pos += getOffset(pos);
 	posT += getOffset(posT);

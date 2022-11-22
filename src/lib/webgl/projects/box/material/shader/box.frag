@@ -11,8 +11,8 @@ uniform float uTime;
 // TODO: point lightの実装
 void main() {
 
-	// vec4 color = vec4(.7, .55, .85, 1.);
-	vec4 color = vec4(1.);
+	vec4 color = vec4(.2, .6, .3, 1.);
+	// vec4 color = vec4(1.);
 	color.rgb *= vReceiveLight;
 
 	float line = 0.;
@@ -31,7 +31,7 @@ void main() {
 		line = vUv.x;
 	}
 
-	color.a *= step(fract(line * 30.), .5);
+	color.a *= step(fract(line * 40.), .8);
 
 	gl_FragColor = color;
 }

@@ -58,7 +58,7 @@ export default class Main extends WebGLBase {
 		if (this._box)
 			this._box!.material.setTime(this._elapsedTime);
 		const t = this._elapsedTime * .1;
-		this._camera?.position.set(Math.sin(t) * 3, 3, Math.cos(t) * 3);
+		this._camera?.position.set(Math.sin(t) * 2, 2, Math.cos(t) * 2);
 		this._camera?.lookAt(0, 0, 0);
 
 		const t2 = this._elapsedTime * 1;
@@ -69,7 +69,7 @@ export default class Main extends WebGLBase {
 		this._box!.material.uniforms.uDirectionalLightVec = new Uniform(new Vector3(0, 0, 0).sub(this._directionalLightPoint!.position));
 
 		const t3 = this._elapsedTime * 2;
-		this._pointLightPoint?.position.set(Math.sin(t3) * .6, Math.cos(t3 * .9) * .6, Math.cos(t3) * .6);
+		this._pointLightPoint?.position.set(Math.sin(t3) * .4, .5, Math.cos(t3) * .4);
 		this._box!.material.uniforms.uPointLightPos = new Uniform(this._pointLightPoint?.position);
 	}
 
