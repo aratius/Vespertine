@@ -11,10 +11,11 @@ export default class BoxMaterial extends ShaderMaterial {
 			vertexShader,
 			uniforms: {
 				uTime: new Uniform(0),
-				uDirectionalLightVec: new Uniform(new Vector3(-1, -1, -1)),
 				uPointLightPos: new Uniform(new Vector3(.5, .5, .5)),
-				uPointLightDist: new Uniform(.5),
-				uBoxAmount: new Uniform(1)
+				uPointLightDist: new Uniform(.8),
+				uBoxAmount: new Uniform(0.),
+				uAmp: new Uniform(0.),
+				uHeight: new Uniform(1.)
 			},
 			transparent: true,
 			side: DoubleSide

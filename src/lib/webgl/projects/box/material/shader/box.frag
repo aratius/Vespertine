@@ -5,13 +5,19 @@ varying vec2 vUv;
 varying vec3 vNormalRaw;
 varying vec3 vNormal;
 varying float vReceiveLight;
+varying float vSea;
 
 uniform float uTime;
+uniform float uBoxAmount;
 
 // TODO: point lightの実装
 void main() {
 
-	vec4 color = vec4(.2, .6, .3, 1.);
+	vec3 glass = vec3(.4, .4, .7);
+	vec3 sea = vec3(.02, .02, .1);
+	vec4 color = vec4(mix(glass, sea, vSea), 1.);
+	if(vSea < .03) color = vec4(.6, .95, .85, 1.);
+	color = mix(color, vec4(1.), uBoxAmount);
 	// vec4 color = vec4(1.);
 	color.rgb *= vReceiveLight;
 
@@ -31,7 +37,7 @@ void main() {
 		line = vUv.x;
 	}
 
-	color.a *= step(fract(line * 40.), .8);
+	color.a *= step(fract(line * 50.), uBoxAmount * .5 + .5 + vSea);
 
 	gl_FragColor = color;
 }
