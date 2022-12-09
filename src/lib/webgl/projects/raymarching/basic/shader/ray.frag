@@ -25,6 +25,37 @@ mat4 rotation3d(vec3 axis, float angle) {
 	);
 }
 
+float sd_sphere(vec3 p) {
+  // 球の半径を1としたときの、点pからの距離を計算して返す
+  return length(p) - 0.3;
+}
+
+float sd_cylinder(vec3 p, vec3 u) {
+  // 円柱の半径を1、長さを1としたときの、点pからの距離を計算して返す
+  return length(vec2(dot(p, u), length(p - dot(p, u) * u))) - .3;
+}
+
+float sd_box(vec3 p, vec3 b) {
+  // 立方体の一辺の長さをbとしたときの、点pからの距離を計算して返す
+  return length(max(abs(p) - b, 0.0));
+}
+
+float sd_face(vec3 p) {
+  // 目の形を表すSigned distance function
+  float eye_l = sd_sphere(p - vec3(0.4, 0.1, 0.5));
+  float eye_r = sd_sphere(p - vec3(-0.4, 0.1, 0.5));
+  // 鼻の形を表すSigned distance function
+  float nose = sd_cylinder(p - vec3(0, 0, 0.5), vec3(0, 0, 1));
+  // 口の形を表すSigned distance function
+  float mouth = sd_box(p - vec3(0, -0.2, 0.5), vec3(0.1, 0.1, 0.1));
+  // 耳の形を表すSigned distance function
+  float ear_l = sd_sphere(p - vec3(0.7, 0.2, 0.5));
+  float ear_r = sd_sphere(p - vec3(-0.7, 0.2, 0.5));
+
+  // 上記の部分からなる人間の顔の形を表すSigned distance function
+  return min(min(min(min(eye_l, eye_r), nose), mouth), min(ear_l, ear_r));
+}
+
 // 回転
 vec3 rotate(vec3 v, vec3 axis, float angle) {
 	mat4 m = rotation3d(axis, angle);
@@ -74,7 +105,8 @@ float sdf(vec3 p) {
 
 	float mouse_sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
 	o = smin(o, mouse_sphere , 0.4);
-	return o;
+	float face = sd_face(p);
+	return face;
 }
 
 // 法線を求める
@@ -92,7 +124,7 @@ vec3 calc_normal(vec3 p) {
 void main() {
 	// 正規化
 	vec2 uv = (gl_FragCoord.xy * 2.0 - u_res) / min(u_res.x, u_res.y);
-	vec3 cam_pos = vec3(0., 0., 2.);
+	vec3 cam_pos = vec3(0., 0., 3.);
 
 	// 各ピクセルにRayを投げる？ z-1はカメラ位置が正の値であるため
 	vec3 ray = normalize(vec3(uv, -1.));
