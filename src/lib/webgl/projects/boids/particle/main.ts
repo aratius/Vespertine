@@ -9,12 +9,12 @@ import { EffectComposer, DepthOfFieldEffect, EffectPass, RenderPass, BloomEffect
 
 export default class Main extends WebGLBase {
 
-	private readonly size: Vector2 = new Vector2(50, 50);
-	private readonly particleNum: number = this.size.x * this.size.y;
-	private particlePlane: (Points | null) = null;
-	private gpuCompute: (GPUComputationRenderer | null) = null;
-	private positionVariable: (Variable | null) = null;
-	private velocityVariable: (Variable | null) = null;
+	private readonly _SIZE: Vector2 = new Vector2(50, 50);
+	private readonly _PARTICLE_NUM: number = this._SIZE.x * this._SIZE.y;
+	private _particlePlane: (Points | null) = null;
+	private _gpuCompute: (GPUComputationRenderer | null) = null;
+	private _positionVariable: (Variable | null) = null;
+	private _velocityVariable: (Variable | null) = null;
 	private _composer: EffectComposer | null = null;
 
 	constructor(canvas: HTMLCanvasElement) {
@@ -63,14 +63,14 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
-		this.velocityVariable!.material.uniforms.u_time = { value: this._elapsedTime };
+		this._velocityVariable!.material.uniforms.u_time = { value: this._elapsedTime };
 		// this.velocityVariable!.material.uniforms.u_mouse_position = {value: this.mouse.basedCenterPosition}
 
 		// // 計算
-		this.gpuCompute!.compute();
+		this._gpuCompute!.compute();
 
 		// // pointsの頂点シェーダーに頂点位置計算テクスチャを渡す (速度テクスチャは位置計算テクスチャの中で消費されているのでここでは使用する必要なし)
-		(<ParticlePlaneMaterial>this.particlePlane!.material).uniforms.u_texture_position.value = (<any>this.gpuCompute!.getCurrentRenderTarget(this.positionVariable!)).texture;
+		(<ParticlePlaneMaterial>this._particlePlane!.material).uniforms.u_texture_position.value = (<any>this._gpuCompute!.getCurrentRenderTarget(this._positionVariable!)).texture;
 
 		this._composer?.render();
 	}
@@ -111,23 +111,23 @@ export default class Main extends WebGLBase {
 	 * GPUCompute用のテクスチャを初期化
 	 */
 	private initComputationRenderer(): void {
-		this.gpuCompute = new GPUComputationRenderer(this.size.x, this.size.y, this._renderer!);
+		this._gpuCompute = new GPUComputationRenderer(this._SIZE.x, this._SIZE.y, this._renderer!);
 
 		// 移動方向を保存するテクスチャ
-		const dtPosition: DataTexture = this.gpuCompute.createTexture();
-		const dtVelocity: DataTexture = this.gpuCompute.createTexture();
+		const dtPosition: DataTexture = this._gpuCompute.createTexture();
+		const dtVelocity: DataTexture = this._gpuCompute.createTexture();
 
 		this.fillTexture(dtPosition, dtVelocity);
 
 		// shaderプログラムのアタッチ
-		this.positionVariable = this.gpuCompute.addVariable("texturePosition", computeShaderPosition, dtPosition);
-		this.velocityVariable = this.gpuCompute.addVariable("textureVelocity", computeShaderVelocity, dtVelocity);
+		this._positionVariable = this._gpuCompute.addVariable("texturePosition", computeShaderPosition, dtPosition);
+		this._velocityVariable = this._gpuCompute.addVariable("textureVelocity", computeShaderVelocity, dtVelocity);
 
 		// 依存関係を構築する 依存し指定した変数はシェーダー内から参照可能
-		this.gpuCompute.setVariableDependencies(this.positionVariable, [this.positionVariable, this.velocityVariable]);
-		this.gpuCompute.setVariableDependencies(this.velocityVariable, [this.velocityVariable, this.positionVariable]);
+		this._gpuCompute.setVariableDependencies(this._positionVariable, [this._positionVariable, this._velocityVariable]);
+		this._gpuCompute.setVariableDependencies(this._velocityVariable, [this._velocityVariable, this._positionVariable]);
 
-		this.gpuCompute.init();
+		this._gpuCompute.init();
 	}
 
 	/**
@@ -135,11 +135,11 @@ export default class Main extends WebGLBase {
 	 */
 	private initParticle(): void {
 		const geometry: BufferGeometry = new BufferGeometry();
-		const positions: Float32Array = new Float32Array(this.particleNum * 3);
-		const indices: Float32Array = new Float32Array(this.particleNum);
+		const positions: Float32Array = new Float32Array(this._PARTICLE_NUM * 3);
+		const indices: Float32Array = new Float32Array(this._PARTICLE_NUM);
 		let p: number = 0;
 		// 位置情報はShader側で決定するので、とりあえず適当に値を埋める
-		for (let i = 0; i < this.particleNum; i++) {
+		for (let i = 0; i < this._PARTICLE_NUM; i++) {
 			positions[p++] = 0;
 			positions[p++] = 0;
 			positions[p++] = 0;
@@ -147,12 +147,12 @@ export default class Main extends WebGLBase {
 		}
 
 		// uv情報 テクスチャから情報を取り出すときに必要
-		const uvs: Float32Array = new Float32Array(this.particleNum * 2);
+		const uvs: Float32Array = new Float32Array(this._PARTICLE_NUM * 2);
 		p = 0;
-		for (let i = 0; i < this.size.x; i++) {
-			for (let j = 0; j < this.size.x; j++) {
-				uvs[p++] = j / (this.size.x - 1);
-				uvs[p++] = i / (this.size.x - 1);
+		for (let i = 0; i < this._SIZE.x; i++) {
+			for (let j = 0; j < this._SIZE.x; j++) {
+				uvs[p++] = j / (this._SIZE.x - 1);
+				uvs[p++] = i / (this._SIZE.x - 1);
 			}
 		}
 
@@ -163,11 +163,11 @@ export default class Main extends WebGLBase {
 
 		const material: ParticlePlaneMaterial = new ParticlePlaneMaterial();
 		material.extensions.drawBuffers = true;
-		this.particlePlane = new Points(geometry, material);
-		this.particlePlane.matrixAutoUpdate = false;
-		this.particlePlane.updateMatrix();
+		this._particlePlane = new Points(geometry, material);
+		this._particlePlane.matrixAutoUpdate = false;
+		this._particlePlane.updateMatrix();
 
-		this._scene!.add(this.particlePlane);
+		this._scene!.add(this._particlePlane);
 	}
 
 }
