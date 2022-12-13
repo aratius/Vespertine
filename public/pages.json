@@ -4,7 +4,6 @@
 		"box",
 		"circlePacking",
 		"fluid2D",
-		"myroom",
 		"paper",
 		"template",
 		"templateJS",
@@ -14,6 +13,13 @@
 			"pages": [
 				"particle",
 				"zuckerberg"
+			]
+		},
+		{
+			"name": "lidar",
+			"pages": [
+				"myroom",
+				"shoes"
 			]
 		},
 		{
