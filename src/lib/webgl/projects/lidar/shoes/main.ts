@@ -26,7 +26,7 @@ export default class Main extends WebGLBase {
 		this._scene?.add(light, dlight);
 		this._camera?.position.set(-2, 2, 0);
 		this._camera?.lookAt(0, 2, 0);
-		new OrbitControls(this._camera!, this._canvas!);
+		// new OrbitControls(this._camera!, this._canvas!);
 	}
 
 	protected _deInitChild(): void {
@@ -38,6 +38,8 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
+		this._camera?.position.set(Math.sin(this._elapsedTime * .5) * .8, .5, Math.cos(this._elapsedTime * .5) * .8);
+		this._camera?.lookAt(0, 0, 0);
 	}
 
 	private async _loadModel(): Promise<void> {
@@ -55,7 +57,7 @@ export default class Main extends WebGLBase {
 			uniform float uAmount;
 			void main() {
 				vUv = uv;
-				vec3 offset = vec3(rand(uv)-.5, rand(uv + vec2(1.))-.5, rand(uv + vec2(2.))-.5) * uAmount;
+				vec3 offset = vec3(rand(uv)-.5, rand(uv + vec2(1.))-.5, rand(uv + vec2(2.))-.5) * uAmount * 10.;
 				gl_Position = projectionMatrix * modelViewMatrix * vec4(position + offset, 1.);
 				gl_PointSize = 20.;
 			}
@@ -74,8 +76,8 @@ export default class Main extends WebGLBase {
 		}));
 		this._scene?.add(p);
 		gsap.timeline({ repeat: -1 })
-			.to(p.material.uniforms.uAmount, { value: 1, duration: 5, delay: 5, ease: "expo.out" })
-			.to(p.material.uniforms.uAmount, { value: 0, duration: 2, ease: "elastic.out" });
+			.to(p.material.uniforms.uAmount, { value: 1, duration: 8, delay: 5, ease: "expo.out" })
+			.to(p.material.uniforms.uAmount, { value: 0, duration: .5, ease: "elastic.out(.14)" });
 	}
 
 }
