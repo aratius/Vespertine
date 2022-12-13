@@ -74,7 +74,7 @@ export default class Main extends WebGLBase {
 		}));
 		this._scene?.add(p);
 		gsap.timeline({ repeat: -1 })
-			.to(p.material.uniforms.uAmount, { value: 1, duration: 5, ease: "expo.out" })
+			.to(p.material.uniforms.uAmount, { value: 1, duration: 5, delay: 5, ease: "expo.out" })
 			.to(p.material.uniforms.uAmount, { value: 0, duration: 2, ease: "elastic.out" });
 	}
 
