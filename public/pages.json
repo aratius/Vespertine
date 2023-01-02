@@ -1,6 +1,7 @@
 {
 	"name": "/",
 	"pages": [
+		"2023",
 		"box",
 		"circlePacking",
 		"fluid2D",
