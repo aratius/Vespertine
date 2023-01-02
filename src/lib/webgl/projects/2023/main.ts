@@ -1,6 +1,6 @@
 
 import gsap from "gsap";
-import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
+import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, ShaderMaterial, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
@@ -13,10 +13,12 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import _PerspectiveCamera from "../../common/perspectiveCamera";
 import { loadTexture } from "../../common/utils";
 import PointLightMeshMaterial from "./material/pointLightMeshMaterial";
+import RabitDistanceMaterial from "./material/rabitDistanceMaterial";
 
 export default class Main extends WebGLBase {
 
 	public _projectName: string = "2023";
+	private _rabit?: Mesh;
 	private _pointLight: Group = new Group();
 	private _textPlaneNewYear?: Mesh;
 	private _textPlaneRabit?: Mesh;
@@ -26,6 +28,7 @@ export default class Main extends WebGLBase {
 	private _composer?: EffectComposer;
 	private _mousePosition: Vector2 = new Vector2(0, 0);
 	private _cameraPosition: Vector3 = new Vector3(0, 0, 0);
+	private _rabitEffectTimeline?: GSAPTimeline;
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
@@ -151,6 +154,8 @@ export default class Main extends WebGLBase {
 		this._camera?.position.set(this._cameraPosition.x - (this._mousePosition.x - .5) * .02, this._cameraPosition.y + (this._mousePosition.y - .5) * .02, this._cameraPosition.z);
 		this._camera?.lookAt(0, .2, -.5);
 
+		if (this._rabit) (this._rabit?.customDistanceMaterial as ShaderMaterial).uniforms.uTime = new Uniform(this._elapsedTime);
+
 		this._composer?.render();
 	}
 
@@ -163,7 +168,7 @@ export default class Main extends WebGLBase {
 		this._textPlaneRabitRig.position.set(0, 0, 0);
 
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
-		this._focusEffectTimeline = gsap.timeline();
+		this._focusEffectTimeline = gsap.timeline({ onStart: this._startRabitEffect.bind(this) });
 		this._focusEffectTimeline.add(
 			gsap.timeline({
 				defaults: { ease: "expo.out", duration: .8 },
@@ -202,7 +207,7 @@ export default class Main extends WebGLBase {
 	private _blurEffect(): void {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
-		this._focusEffectTimeline = gsap.timeline();
+		this._focusEffectTimeline = gsap.timeline({ onStart: this._stopRabitEffect.bind(this) });
 		this._focusEffectTimeline.add(
 			gsap.timeline({
 				defaults: { ease: "expo.out", duration: .8 },
@@ -220,6 +225,52 @@ export default class Main extends WebGLBase {
 				.to(this._textPlaneRabit.material, { opacity: 0, ease: "expo.out" }, 0)
 				.to(this._textPlaneNewYear.material, { opacity: 0, ease: "expo.out", }, 0)
 			, 0);
+	}
+
+	private _startRabitEffect(): void {
+		if (this._rabitEffectTimeline) this._rabitEffectTimeline.kill();
+		const distMat: ShaderMaterial = this._rabit?.customDistanceMaterial as ShaderMaterial;
+		this._rabitEffectTimeline = gsap.timeline({ repeat: -1 });
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 5, duration: 5 }, 0)
+				.to(distMat.uniforms.uPower, { value: 1, duration: .5 }, 0)
+				.to(distMat.uniforms.uAmp, { value: 5, duration: .5 }, 0)
+		);
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 50, duration: 5 }, 0)
+				.to(distMat.uniforms.uPower, { value: 1, duration: .5 }, 0)
+				.to(distMat.uniforms.uAmp, { value: 30, duration: .5 }, 0)
+		);
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 50.3, duration: 1, ease: "linear" }, 0)
+				.to(distMat.uniforms.uPower, { value: 5, duration: 1, ease: "elastic.out" }, 0)
+				.to(distMat.uniforms.uAmp, { value: 10, duration: .1 }, 0)
+		);
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.out" } })
+				.to(distMat.uniforms.uProgress, { value: 51, duration: 3 }, 0)
+				.to(distMat.uniforms.uPower, { value: 0, duration: 3 }, 0)
+				.to(distMat.uniforms.uAmp, { value: 1, duration: 2 }, 0)
+		);
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 0, duration: 1 }, 0)
+		);
+	}
+
+	private _stopRabitEffect(): void {
+		if (this._rabitEffectTimeline) this._rabitEffectTimeline.kill();
+		const distMat: ShaderMaterial = this._rabit?.customDistanceMaterial as ShaderMaterial;
+		this._rabitEffectTimeline = gsap.timeline({});
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 0, duration: 5 }, 0)
+				.to(distMat.uniforms.uPower, { value: 0, duration: .5 }, 0)
+				.to(distMat.uniforms.uAmp, { value: 1, duration: .5 }, 0)
+		);
 	}
 
 	private async _loadTextPlane(): Promise<void> {
@@ -266,9 +317,12 @@ export default class Main extends WebGLBase {
 
 				const material = new MeshStandardMaterial({ color: 0xcccccc });
 				const mesh = new Mesh(geometry, material);
+				mesh.customDistanceMaterial = new RabitDistanceMaterial();
 				mesh.castShadow = true;
 				mesh.receiveShadow = true;
 				this._scene!.add(mesh);
+
+				this._rabit = mesh;
 
 				// Release decoder resources.
 				dracoLoader.dispose();
