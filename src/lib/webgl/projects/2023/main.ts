@@ -1,7 +1,7 @@
 
 import gsap from "gsap";
-import { AmbientLight, BoxBufferGeometry, DirectionalLight, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
-import { EffectComposer, Pass } from "three/examples/jsm/postprocessing/EffectComposer";
+import { AmbientLight, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { SavePass } from "three/examples/jsm/postprocessing/SavePass";
@@ -13,7 +13,6 @@ import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import _PerspectiveCamera from "../../common/perspectiveCamera";
 import { loadTexture } from "../../common/utils";
 import PointLightMeshMaterial from "./material/pointLightMeshMaterial";
-import { formatDiagnosticsWithColorAndContext } from "typescript";
 
 export default class Main extends WebGLBase {
 
@@ -21,9 +20,12 @@ export default class Main extends WebGLBase {
 	private _pointLight: Group = new Group();
 	private _textPlaneNewYear?: Mesh;
 	private _textPlaneRabit?: Mesh;
+	private _textPlaneNewYearRig: Group = new Group();
+	private _textPlaneRabitRig: Group = new Group();
 	private _focusEffectTimeline?: GSAPTimeline;
 	private _composer?: EffectComposer;
 	private _mousePosition: Vector2 = new Vector2(0, 0);
+	private _cameraPosition: Vector3 = new Vector3(0, 0, 0);
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
@@ -35,7 +37,8 @@ export default class Main extends WebGLBase {
 	protected _initChild(): void {
 		this._renderer!.shadowMap.enabled = true;
 
-		this._camera?.position.set(0, .5, 1);
+		this._cameraPosition = new Vector3(0, .5, 1);
+		this._camera?.position.set(this._cameraPosition.x, this._cameraPosition.y, this._cameraPosition.z);
 		this._camera?.lookAt(0, .2, -.5);
 
 		this._composer = new EffectComposer(this._renderer!);
@@ -126,7 +129,8 @@ export default class Main extends WebGLBase {
 			this._mousePosition = new Vector2(e.clientX / innerWidth, e.clientY / innerHeight);
 		});
 
-		setTimeout(this._focusEffect.bind(this), 2000);
+		window.addEventListener("mousedown", this._focusEffect.bind(this));
+		window.addEventListener("mouseup", this._blurEffect.bind(this));
 	}
 
 	protected _deInitChild(): void {
@@ -140,10 +144,59 @@ export default class Main extends WebGLBase {
 	protected _updateChild(): void {
 		this._pointLight.position.setX((this._mousePosition.x - .5) * .2);
 		this._pointLight.position.setY(-(this._mousePosition.y - .5) * .05 + .1);
+
+		this._camera?.position.set(this._cameraPosition.x - (this._mousePosition.x - .5) * .02, this._cameraPosition.y + (this._mousePosition.y - .5) * .02, this._cameraPosition.z);
+		this._camera?.lookAt(0, .2, -.5);
+
 		this._composer?.render();
 	}
 
 	private _focusEffect() {
+		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
+
+		this._textPlaneNewYearRig.scale.set(1, 1, 1);
+		this._textPlaneNewYearRig.position.set(0, 0, 0);
+		this._textPlaneRabitRig.scale.set(1, 1, 1);
+		this._textPlaneRabitRig.position.set(0, 0, 0);
+
+		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
+		this._focusEffectTimeline = gsap.timeline();
+		this._focusEffectTimeline.add(
+			gsap.timeline({
+				defaults: { ease: "expo.out", duration: .8 },
+				onUpdate: () => {
+					this._camera?.fillScreen();
+					this._camera?.lookAt(0, .2, -.5);
+				}
+			})
+				.to(this._cameraPosition, { x: 0, y: .1, z: .25 }, 0)
+				.to(_PerspectiveCamera, { perspective: 350 }, 0)
+				.to(this._pointLight.position, { z: .1 }, 0)
+		);
+		this._focusEffectTimeline.add(
+			gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" } })
+				.to(this._textPlaneRabit.material, { opacity: 1, ease: "expo.out" }, 0)
+				.from(this._textPlaneRabitRig.position, { y: "-=.1" }, 0)
+				.from(this._textPlaneRabitRig.scale, { y: "*=.7" }, 0)
+		);
+		this._focusEffectTimeline.add(
+			gsap.timeline()
+				.add(
+					gsap.timeline({ defaults: { duration: .2, ease: "expo.out" } })
+						.to(this._textPlaneRabit.material, { opacity: 0, ease: "sine.out" }, 0)
+						.to(this._textPlaneRabitRig.position, { x: -.25, y: .05, }, 0)
+						.to(this._textPlaneRabitRig.scale, { x: .8, y: .8, z: .8, }, 0)
+					, 0)
+				.add(
+					gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" }, delay: .05 })
+						.to(this._textPlaneNewYear.material, { opacity: 1, ease: "expo.out", }, 0)
+						.from(this._textPlaneNewYearRig.position, { y: -.1, }, 0)
+						.from(this._textPlaneNewYearRig.scale, { y: .7, }, 0)
+					, 0)
+		);
+	}
+
+	private _blurEffect(): void {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
 		this._focusEffectTimeline = gsap.timeline();
@@ -155,31 +208,15 @@ export default class Main extends WebGLBase {
 					this._camera?.lookAt(0, .2, -.5);
 				}
 			})
-				.to(this._camera!.position, { x: 0, y: .1, z: .25 }, 0)
-				.to(_PerspectiveCamera, { perspective: 350 }, 0)
-				.to(this._pointLight.position, { z: .1 }, 0)
-		);
+				.to(this._cameraPosition, { x: 0, y: .2, z: .5 }, 0)
+				.to(_PerspectiveCamera, { perspective: 500 }, 0)
+				.to(this._pointLight.position, { z: .3 }, 0)
+			, 0);
 		this._focusEffectTimeline.add(
 			gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" } })
-				.to(this._textPlaneRabit.material, { opacity: 1, ease: "expo.out" }, 0)
-				.from(this._textPlaneRabit.position, { y: "-=.1" }, 0)
-				.from(this._textPlaneRabit.scale, { y: "*=.7" }, 0)
-		);
-		this._focusEffectTimeline.add(
-			gsap.timeline()
-				.add(
-					gsap.timeline({ defaults: { duration: .2, ease: "expo.out" } })
-						.to(this._textPlaneRabit.material, { opacity: 0, ease: "circ.out" }, 0)
-						.to(this._textPlaneRabit.position, { x: "-=.13", y: "+=.05", }, 0)
-						.to(this._textPlaneRabit.scale, { x: "*=.8", y: "*=.8", z: "*=.8", }, 0)
-					, 0)
-				.add(
-					gsap.timeline({ defaults: { duration: .5, ease: "elastic.out", delay: .05 } })
-						.to(this._textPlaneNewYear.material, { opacity: 1, ease: "expo.out", }, 0)
-						.from(this._textPlaneNewYear.position, { y: "-=.1", }, 0)
-						.from(this._textPlaneNewYear.scale, { y: "*=.7", }, 0)
-					, 0)
-		);
+				.to(this._textPlaneRabit.material, { opacity: 0, ease: "expo.out" }, 0)
+				.to(this._textPlaneNewYear.material, { opacity: 0, ease: "expo.out", }, 0)
+			, 0);
 	}
 
 	private async _loadTextPlane(): Promise<void> {
@@ -205,9 +242,11 @@ export default class Main extends WebGLBase {
 		textPlaneNewYear.position.setZ(-.31);
 		textPlaneRabit.position.setZ(-.3);
 
-		this._scene?.add(textPlaneNewYear, textPlaneRabit);
 		this._textPlaneNewYear = textPlaneNewYear;
+		this._textPlaneNewYearRig?.add(this._textPlaneNewYear);
 		this._textPlaneRabit = textPlaneRabit;
+		this._textPlaneRabitRig?.add(this._textPlaneRabit);
+		this._scene?.add(this._textPlaneNewYearRig, this._textPlaneRabitRig);
 	}
 
 	private async _loadModel(): Promise<void> {
