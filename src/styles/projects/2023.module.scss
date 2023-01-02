@@ -3,6 +3,18 @@
 	width: 100vw;
 	height: 100vh;
 	margin: 0;
+	cursor: none;
+
+	.cursor {
+		width: 16px;
+		height: 16px;
+		border-radius: 8px;
+		background-color: #fff;
+		position: fixed;
+		left: 0;
+		top: 0;
+		transform: translate3d(-50%, -50%, 0);
+	}
 
 	canvas {
 		width: 100%;
