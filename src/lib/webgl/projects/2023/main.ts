@@ -1,6 +1,6 @@
 
 import gsap from "gsap";
-import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, ShaderMaterial, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
+import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, ShaderMaterial, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
@@ -87,13 +87,17 @@ export default class Main extends WebGLBase {
 		spotLight.shadow.mapSize.height = 2048 / 2;
 		spotLight.shadow.camera.near = .1;
 		spotLight.shadow.camera.far = 10;
-		const dirLight1 = spotLight.clone();
-		dirLight1.position.set(.2, .4, -.2);
-		dirLight1.lookAt(0, 0, 0);
-		const dirLight2 = spotLight.clone();
-		dirLight2.position.set(-.2, .4, -.2);
-		dirLight2.lookAt(0, 0, 0);
-		this._scene?.add(ambientLight, dirLight1, dirLight2);
+		const spotLight1 = spotLight.clone();
+		spotLight1.position.set(.2, .4, -.2);
+		spotLight1.lookAt(0, 0, 0);
+		const spotLight2 = spotLight.clone();
+		spotLight2.position.set(-.2, .4, -.2);
+		spotLight2.lookAt(0, 0, 0);
+		const spotLight3 = spotLight.clone();
+		spotLight3.intensity = .3;
+		spotLight3.position.set(0, .3, .25);
+		spotLight3.lookAt(0, 0, 0);
+		this._scene?.add(ambientLight, spotLight1, spotLight2, spotLight3);
 
 		const pointLight = new PointLight(0xffffff, .5);
 		pointLight.castShadow = true;
@@ -114,14 +118,14 @@ export default class Main extends WebGLBase {
 
 		const floor = new Mesh(
 			new BoxBufferGeometry(3, 1, 3),
-			new MeshStandardMaterial({ color: 0xffffff, metalness: .3, roughness: .5 })
+			new MeshStandardMaterial({ color: 0xF4B600, metalness: .8, roughness: .55 })
 		);
 		floor.position.setY(-.47);
 		floor.receiveShadow = true;
 		// floor.castShadow = true;
 		const backWall = new Mesh(
 			new SphereBufferGeometry(2, 30, 20),
-			new MeshStandardMaterial({ color: 0xaaaaaa, side: BackSide, metalness: .5, roughness: .5 })
+			new MeshStandardMaterial({ color: 0xDD2720, side: BackSide, metalness: .5, roughness: .5 })
 		);
 		backWall.position.setZ(1);
 		backWall.receiveShadow = true;
@@ -162,6 +166,8 @@ export default class Main extends WebGLBase {
 	private _focusEffect() {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 
+		(this._textPlaneRabit.material as Material).opacity = 0;
+		(this._textPlaneNewYear.material as Material).opacity = 0;
 		this._textPlaneNewYearRig.scale.set(1, 1, 1);
 		this._textPlaneNewYearRig.position.set(0, 0, 0);
 		this._textPlaneRabitRig.scale.set(1, 1, 1);
@@ -177,7 +183,7 @@ export default class Main extends WebGLBase {
 					this._camera?.lookAt(0, .2, -.5);
 				}
 			})
-				.to(this._cameraPosition, { x: 0, y: .1, z: .25 }, 0)
+				.to(this._cameraPosition, { x: 0, y: .1, z: .2 }, 0)
 				.to(_PerspectiveCamera, { perspective: 350 }, 0)
 				.to(this._pointLight.position, { z: .1 }, 0)
 		);
@@ -192,8 +198,8 @@ export default class Main extends WebGLBase {
 				.add(
 					gsap.timeline({ defaults: { duration: .2, ease: "expo.out" } })
 						.to(this._textPlaneRabit.material, { opacity: 0, ease: "sine.out" }, 0)
-						.to(this._textPlaneRabitRig.position, { x: -.25, y: .05, }, 0)
-						.to(this._textPlaneRabitRig.scale, { x: .8, y: .8, z: .8, }, 0)
+						.to(this._textPlaneRabitRig.position, { x: -.25, y: .15, }, 0)
+						.to(this._textPlaneRabitRig.scale, { x: .6, y: .6, z: .6, }, 0)
 					, 0)
 				.add(
 					gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" }, delay: .05 })
@@ -231,27 +237,28 @@ export default class Main extends WebGLBase {
 		if (this._rabitEffectTimeline) this._rabitEffectTimeline.kill();
 		const distMat: ShaderMaterial = this._rabit?.customDistanceMaterial as ShaderMaterial;
 		this._rabitEffectTimeline = gsap.timeline({ repeat: -1 });
+
 		this._rabitEffectTimeline.add(
 			gsap.timeline({ defaults: { ease: "sine.inOut" } })
-				.to(distMat.uniforms.uProgress, { value: 5, duration: 5 }, 0)
-				.to(distMat.uniforms.uPower, { value: 1, duration: .5 }, 0)
-				.to(distMat.uniforms.uAmp, { value: 5, duration: .5 }, 0)
-		);
-		this._rabitEffectTimeline.add(
-			gsap.timeline({ defaults: { ease: "sine.inOut" } })
-				.to(distMat.uniforms.uProgress, { value: 50, duration: 5 }, 0)
+				.to(distMat.uniforms.uProgress, { value: 40, duration: 5 }, 0)
 				.to(distMat.uniforms.uPower, { value: 1, duration: .5 }, 0)
 				.to(distMat.uniforms.uAmp, { value: 30, duration: .5 }, 0)
 		);
 		this._rabitEffectTimeline.add(
 			gsap.timeline({ defaults: { ease: "sine.inOut" } })
-				.to(distMat.uniforms.uProgress, { value: 50.3, duration: 1, ease: "linear" }, 0)
+				.to(distMat.uniforms.uProgress, { value: 43, duration: 3 }, 0)
+				.to(distMat.uniforms.uPower, { value: 1, duration: .5 }, 0)
+				.to(distMat.uniforms.uAmp, { value: 5, duration: .5 }, 0)
+		);
+		this._rabitEffectTimeline.add(
+			gsap.timeline({ defaults: { ease: "sine.inOut" } })
+				.to(distMat.uniforms.uProgress, { value: 43.3, duration: 1, ease: "linear" }, 0)
 				.to(distMat.uniforms.uPower, { value: 5, duration: 1, ease: "elastic.out" }, 0)
 				.to(distMat.uniforms.uAmp, { value: 10, duration: .1 }, 0)
 		);
 		this._rabitEffectTimeline.add(
 			gsap.timeline({ defaults: { ease: "sine.out" } })
-				.to(distMat.uniforms.uProgress, { value: 51, duration: 3 }, 0)
+				.to(distMat.uniforms.uProgress, { value: 44, duration: 3 }, 0)
 				.to(distMat.uniforms.uPower, { value: 0, duration: 3 }, 0)
 				.to(distMat.uniforms.uAmp, { value: 1, duration: 2 }, 0)
 		);
@@ -267,7 +274,7 @@ export default class Main extends WebGLBase {
 		this._rabitEffectTimeline = gsap.timeline({});
 		this._rabitEffectTimeline.add(
 			gsap.timeline({ defaults: { ease: "sine.inOut" } })
-				.to(distMat.uniforms.uProgress, { value: 0, duration: 5 }, 0)
+				.to(distMat.uniforms.uProgress, { value: 0, duration: 1 }, 0)
 				.to(distMat.uniforms.uPower, { value: 0, duration: .5 }, 0)
 				.to(distMat.uniforms.uAmp, { value: 1, duration: .5 }, 0)
 		);
