@@ -1,6 +1,6 @@
 
 import gsap from "gsap";
-import { AmbientLight, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
+import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
@@ -37,9 +37,11 @@ export default class Main extends WebGLBase {
 	protected _initChild(): void {
 		this._renderer!.shadowMap.enabled = true;
 
-		this._cameraPosition = new Vector3(0, .5, 1);
+		this._cameraPosition = new Vector3(0, .2, .5);
+		_PerspectiveCamera.perspective = 500;
 		this._camera?.position.set(this._cameraPosition.x, this._cameraPosition.y, this._cameraPosition.z);
 		this._camera?.lookAt(0, .2, -.5);
+		this._camera?.fillScreen();
 
 		this._composer = new EffectComposer(this._renderer!);
 		const savePass = new SavePass(
@@ -107,19 +109,20 @@ export default class Main extends WebGLBase {
 		this._pointLight.position.set(0, .1, .3);
 		this._scene?.add(this._pointLight);
 
-		const plate = new Mesh(
-			new BoxBufferGeometry(3, 1, 1),
-			new MeshStandardMaterial({ color: 0xcccccc })
+		const floor = new Mesh(
+			new BoxBufferGeometry(3, 1, 3),
+			new MeshStandardMaterial({ color: 0xffffff, metalness: .3, roughness: .5 })
 		);
-		const floor = plate.clone();
-		floor.rotateX(Math.PI);
 		floor.position.setY(-.47);
 		floor.receiveShadow = true;
-		floor.castShadow = true;
-		const backWall = plate.clone();
-		backWall.position.set(0, .5, -1);
+		// floor.castShadow = true;
+		const backWall = new Mesh(
+			new SphereBufferGeometry(2, 30, 20),
+			new MeshStandardMaterial({ color: 0xaaaaaa, side: BackSide, metalness: .5, roughness: .5 })
+		);
+		backWall.position.setZ(1);
 		backWall.receiveShadow = true;
-		backWall.castShadow = true;
+		// backWall.castShadow = true;
 		this._scene?.add(floor, backWall);
 
 		this._loadTextPlane();
@@ -239,8 +242,8 @@ export default class Main extends WebGLBase {
 
 		const textPlaneNewYear = getTextPlane(textureNewYear);
 		const textPlaneRabit = getTextPlane(textureRabit);
-		textPlaneNewYear.position.setZ(-.31);
-		textPlaneRabit.position.setZ(-.3);
+		textPlaneNewYear.position.setZ(-.41);
+		textPlaneRabit.position.setZ(-.4);
 
 		this._textPlaneNewYear = textPlaneNewYear;
 		this._textPlaneNewYearRig?.add(this._textPlaneNewYear);
@@ -261,7 +264,7 @@ export default class Main extends WebGLBase {
 
 				geometry.computeVertexNormals();
 
-				const material = new MeshStandardMaterial({ color: 0xaaaaaa });
+				const material = new MeshStandardMaterial({ color: 0xcccccc });
 				const mesh = new Mesh(geometry, material);
 				mesh.castShadow = true;
 				mesh.receiveShadow = true;
