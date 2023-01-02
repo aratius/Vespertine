@@ -9,6 +9,7 @@ export interface WebGLOptions {
 	shouldUpdate?: boolean,
 	cameraSettings?: PerspectiveCameraOptions | OrthographicCameraOptions,
 	stats?: boolean;
+	autoRender?: boolean;
 }
 
 export default class WebGLBase {
@@ -17,7 +18,8 @@ export default class WebGLBase {
 		camera: "perspective",
 		fillScreen: true,
 		shouldUpdate: true,
-		stats: false
+		stats: false,
+		autoRender: true
 	};
 
 	protected _scene: Scene | null = null;
@@ -52,7 +54,7 @@ export default class WebGLBase {
 	 * render
 	 */
 	public render(): void {
-		if (this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera);
+		if (this._settings.autoRender && this._scene != null && this._camera != null) this._renderer?.render(this._scene, this._camera);
 	}
 
 	/**

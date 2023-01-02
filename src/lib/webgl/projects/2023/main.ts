@@ -1,11 +1,19 @@
 
 import gsap from "gsap";
+import { AmbientLight, BoxBufferGeometry, DirectionalLight, Group, LinearFilter, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
+import { EffectComposer, Pass } from "three/examples/jsm/postprocessing/EffectComposer";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { SavePass } from "three/examples/jsm/postprocessing/SavePass";
+import { BlendShader } from "three/examples/jsm/shaders/BlendShader";
+import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 import WebGLBase from "src/lib/webgl/common/main";
-import { AmbientLight, BoxBufferGeometry, DirectionalLight, Group, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Vector3 } from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import _PerspectiveCamera from "../../common/perspectiveCamera";
 import { loadTexture } from "../../common/utils";
 import PointLightMeshMaterial from "./material/pointLightMeshMaterial";
+import { formatDiagnosticsWithColorAndContext } from "typescript";
 
 export default class Main extends WebGLBase {
 
@@ -14,10 +22,13 @@ export default class Main extends WebGLBase {
 	private _textPlaneNewYear?: Mesh;
 	private _textPlaneRabit?: Mesh;
 	private _focusEffectTimeline?: GSAPTimeline;
+	private _composer?: EffectComposer;
+	private _mousePosition: Vector2 = new Vector2(0, 0);
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
-			camera: "perspective"
+			camera: "perspective",
+			autoRender: false
 		});
 	}
 
@@ -26,6 +37,38 @@ export default class Main extends WebGLBase {
 
 		this._camera?.position.set(0, .5, 1);
 		this._camera?.lookAt(0, .2, -.5);
+
+		this._composer = new EffectComposer(this._renderer!);
+		const savePass = new SavePass(
+			new WebGLRenderTarget(
+				innerWidth,
+				innerHeight,
+				{
+					minFilter: LinearFilter,
+					magFilter: LinearFilter,
+					stencilBuffer: false
+				}
+			)
+		);
+
+		const blendPass = new ShaderPass(BlendShader, "tDiffuse1");
+		blendPass.uniforms["tDiffuse2"] = new Uniform(savePass.renderTarget.texture);
+		blendPass.uniforms["mixRatio"] = new Uniform(.6);
+
+		const outputPass = new ShaderPass(CopyShader);
+		outputPass.renderToScreen = true;
+
+		const fxaaPass = new ShaderPass(FXAAShader);
+		fxaaPass.material.uniforms["resolution"].value.x = 1 / innerWidth * this._renderer!.getPixelRatio();
+		fxaaPass.material.uniforms["resolution"].value.y = 1 / innerHeight * this._renderer!.getPixelRatio();
+
+		const renderPass = new RenderPass(this._scene!, this._camera!);
+
+		this._composer.addPass(renderPass);
+		this._composer.addPass(blendPass);
+		this._composer.addPass(savePass);
+		this._composer.addPass(outputPass);
+		this._composer.addPass(fxaaPass);
 
 		const ambientLight = new AmbientLight(0xffffff, .7);
 		const spotLight = new SpotLight(0xffffff, .1, 10, Math.PI / 4, 1, 3);
@@ -57,7 +100,7 @@ export default class Main extends WebGLBase {
 			new PointLightMeshMaterial()
 		);
 		pointLightMesh.scale.multiplyScalar(.03);
-		this._pointLight.add(pointLight, pointLightMesh);
+		this._pointLight.add(pointLight);
 		this._pointLight.position.set(0, .1, .3);
 		this._scene?.add(this._pointLight);
 
@@ -79,6 +122,10 @@ export default class Main extends WebGLBase {
 		this._loadTextPlane();
 		this._loadModel();
 
+		window.addEventListener("mousemove", e => {
+			this._mousePosition = new Vector2(e.clientX / innerWidth, e.clientY / innerHeight);
+		});
+
 		setTimeout(this._focusEffect.bind(this), 2000);
 	}
 
@@ -91,7 +138,9 @@ export default class Main extends WebGLBase {
 	}
 
 	protected _updateChild(): void {
-		this._pointLight.position.setX(Math.sin(this._elapsedTime) * .1);
+		this._pointLight.position.setX((this._mousePosition.x - .5) * .2);
+		this._pointLight.position.setY(-(this._mousePosition.y - .5) * .05 + .1);
+		this._composer?.render();
 	}
 
 	private _focusEffect() {
@@ -108,6 +157,7 @@ export default class Main extends WebGLBase {
 			})
 				.to(this._camera!.position, { x: 0, y: .1, z: .25 }, 0)
 				.to(_PerspectiveCamera, { perspective: 350 }, 0)
+				.to(this._pointLight.position, { z: .1 }, 0)
 		);
 		this._focusEffectTimeline.add(
 			gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" } })
@@ -122,12 +172,13 @@ export default class Main extends WebGLBase {
 						.to(this._textPlaneRabit.material, { opacity: 0, ease: "circ.out" }, 0)
 						.to(this._textPlaneRabit.position, { x: "-=.13", y: "+=.05", }, 0)
 						.to(this._textPlaneRabit.scale, { x: "*=.8", y: "*=.8", z: "*=.8", }, 0)
-					, 0).add(
-						gsap.timeline({ defaults: { duration: .5, ease: "elastic.out", delay: .05 } })
-							.to(this._textPlaneNewYear.material, { opacity: 1, ease: "expo.out", }, 0)
-							.from(this._textPlaneNewYear.position, { y: "-=.1", }, 0)
-							.from(this._textPlaneNewYear.scale, { y: "*=.7", }, 0)
-						, 0)
+					, 0)
+				.add(
+					gsap.timeline({ defaults: { duration: .5, ease: "elastic.out", delay: .05 } })
+						.to(this._textPlaneNewYear.material, { opacity: 1, ease: "expo.out", }, 0)
+						.from(this._textPlaneNewYear.position, { y: "-=.1", }, 0)
+						.from(this._textPlaneNewYear.scale, { y: "*=.7", }, 0)
+					, 0)
 		);
 	}
 
