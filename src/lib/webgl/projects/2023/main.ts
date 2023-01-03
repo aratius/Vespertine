@@ -182,22 +182,25 @@ export default class Main extends WebGLBase {
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
 		this._focusEffectTimeline = gsap.timeline({ onStart: this._startRabitEffect.bind(this) });
 		this._focusEffectTimeline.add(
-			gsap.timeline({
-				defaults: { ease: "expo.out", duration: .8 },
-				onUpdate: () => {
-					this._camera?.fillScreen();
-					this._camera?.lookAt(0, .2, -.5);
-				}
-			})
-				.to(this._cameraPosition, { x: 0, y: .1, z: .2 }, 0)
-				.to(_PerspectiveCamera, { perspective: 350 }, 0)
-				.to(this._pointLight.position, { z: .1 }, 0)
-		);
-		this._focusEffectTimeline.add(
-			gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" } })
-				.to(this._textPlaneRabit.material, { opacity: 1, ease: "expo.out" }, 0)
-				.from(this._textPlaneRabitRig.position, { y: "-=.1" }, 0)
-				.from(this._textPlaneRabitRig.scale, { y: "*=.7" }, 0)
+			gsap.timeline()
+				.add(
+					gsap.timeline({
+						defaults: { ease: "expo.out", duration: .8 },
+						onUpdate: () => {
+							this._camera?.fillScreen();
+							this._camera?.lookAt(0, .2, -.5);
+						}
+					})
+						.to(this._cameraPosition, { x: 0, y: .1, z: .2 }, 0)
+						.to(_PerspectiveCamera, { perspective: 350 }, 0)
+						.to(this._pointLight.position, { z: .1 }, 0)
+					, 0)
+				.add(
+					gsap.timeline({ defaults: { duration: .5, ease: "elastic.out" }, delay: .25 })
+						.to(this._textPlaneRabit.material, { opacity: 1, ease: "expo.out" }, 0)
+						.from(this._textPlaneRabitRig.position, { y: "-=.1" }, 0)
+						.from(this._textPlaneRabitRig.scale, { y: "*=.7" }, 0)
+					, 0)
 		);
 		this._focusEffectTimeline.add(
 			gsap.timeline()
