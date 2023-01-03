@@ -75,7 +75,7 @@ export default class Index extends Component {
     public render(): ReactElement {
         return (
             <div className={styles.container}>
-				{/* <Info
+				<Info
 					title="2023"
 					shareText=""
 					shareUrl=""
@@ -94,13 +94,13 @@ export default class Index extends Component {
 							}
 						]
 					]}
-				/> */}
+				/>
 				<Head
 					title="2023"
-					ogImgPath=""
-					ogUrl=""
-					description=""
-					twitterId=""
+					ogImgPath="https://vesp.aualrxse.com/projects/2023/og.png"
+					ogUrl="https://vesp.aualrxse.com/projects/2023/"
+					description="Happy New Year | 2023"
+					twitterId="aualrxse"
 				/>
 				<span className={`${styles.cursor} ${styles.pc}`} ref={this._onRefCursor}></span>
                 <canvas ref={this._onRefCanvas}></canvas>
