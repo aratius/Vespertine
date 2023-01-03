@@ -19,6 +19,7 @@ export const displayShader: DisplayShader = {
 		// tDiffuseという名前はShaderPass組み込み
 		'tDiffuse': { value: null },
 		'uTime': { value: 0 },
+		'uNoise': { value: 0 }
 	},
 	vertexShader: vertShader,
 	fragmentShader: fragShader

@@ -183,6 +183,7 @@ export default class Main extends WebGLBase {
 		this._focusEffectTimeline = gsap.timeline({ onStart: this._startRabitEffect.bind(this) });
 		this._focusEffectTimeline.add(
 			gsap.timeline()
+				.to(this._customShaderPass!.uniforms.uNoise, { value: 1, duration: .5 }, 0)
 				.add(
 					gsap.timeline({
 						defaults: { ease: "expo.out", duration: .8 },
@@ -223,6 +224,7 @@ export default class Main extends WebGLBase {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
 		this._focusEffectTimeline = gsap.timeline({ onStart: this._stopRabitEffect.bind(this) });
+		this._focusEffectTimeline.to(this._customShaderPass!.uniforms.uNoise, { value: 0, duration: .5 });
 		this._focusEffectTimeline.add(
 			gsap.timeline({
 				defaults: { ease: "expo.out", duration: .8 },
