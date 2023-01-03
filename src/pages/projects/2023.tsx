@@ -5,6 +5,7 @@ import styles from "src/styles/projects/2023.module.scss"
 import Head from "src/components/common/head";
 import Info from "src/components/common/info";
 import gsap from "gsap";
+import Main from "src/lib/webgl/projects/2023/main";
 
 interface Props {}
 interface State {}
@@ -15,6 +16,7 @@ export default class Index extends Component {
 	private _cursor?: HTMLSpanElement;
 	private _cursorMoveTween?: GSAPTween;
 	private _cursorSizeTween?: GSAPTween;
+	private _webgl?: Main;
 
     constructor(props: Props) {
         super(props)
@@ -33,12 +35,14 @@ export default class Index extends Component {
 				if(this._cursorSizeTween) this._cursorSizeTween.kill()
 				this._cursorSizeTween = gsap.to(this._cursor, {width: 20, height: 20, borderRadius: 10, duration: .3, ease: "expo.out"})
 			}
+			if(this._webgl) this._webgl.focusEffect()
 		})
 		window.addEventListener("mouseup", e => {
 			if(this._cursor) {
 				if(this._cursorSizeTween) this._cursorSizeTween.kill()
 				this._cursorSizeTween = gsap.to(this._cursor, {width: 16, height: 16, borderRadius: 8, duration: .3, ease: "expo.out"})
 			}
+			if(this._webgl) this._webgl.blurEffect()
 		})
     }
 
@@ -46,6 +50,7 @@ export default class Index extends Component {
 		if(!node) return
 		const webgl = new WebGLMain(node)
 		webgl.init()
+		this._webgl = webgl;
 	}
 
 	private _onRefCursor = (node: HTMLSpanElement): void => {

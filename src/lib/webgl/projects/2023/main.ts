@@ -1,13 +1,14 @@
 
 import gsap from "gsap";
 import { AmbientLight, BackSide, BoxBufferGeometry, Group, LinearFilter, Material, Mesh, MeshBasicMaterial, MeshStandardMaterial, PlaneBufferGeometry, PointLight, ShaderMaterial, SphereBufferGeometry, SpotLight, Texture, TextureLoader, Uniform, Vector2, Vector3, WebGLRenderTarget } from "three";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { EffectComposer, Pass } from "three/examples/jsm/postprocessing/EffectComposer";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { SavePass } from "three/examples/jsm/postprocessing/SavePass";
 import { BlendShader } from "three/examples/jsm/shaders/BlendShader";
 import { CopyShader } from "three/examples/jsm/shaders/CopyShader";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
+import { RenderPixelatedPass } from "./RenderPixelatedPass";
 import WebGLBase from "src/lib/webgl/common/main";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import _PerspectiveCamera from "../../common/perspectiveCamera";
@@ -61,7 +62,7 @@ export default class Main extends WebGLBase {
 
 		const blendPass = new ShaderPass(BlendShader, "tDiffuse1");
 		blendPass.uniforms["tDiffuse2"] = new Uniform(savePass.renderTarget.texture);
-		blendPass.uniforms["mixRatio"] = new Uniform(.6);
+		blendPass.uniforms["mixRatio"] = new Uniform(.8);
 
 		const outputPass = new ShaderPass(CopyShader);
 		outputPass.renderToScreen = true;
@@ -139,8 +140,6 @@ export default class Main extends WebGLBase {
 			this._mousePosition = new Vector2(e.clientX / innerWidth, e.clientY / innerHeight);
 		});
 
-		window.addEventListener("mousedown", this._focusEffect.bind(this));
-		window.addEventListener("mouseup", this._blurEffect.bind(this));
 	}
 
 	protected _deInitChild(): void {
@@ -163,7 +162,7 @@ export default class Main extends WebGLBase {
 		this._composer?.render();
 	}
 
-	private _focusEffect() {
+	public focusEffect(): void {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 
 		(this._textPlaneRabit.material as Material).opacity = 0;
@@ -210,7 +209,7 @@ export default class Main extends WebGLBase {
 		);
 	}
 
-	private _blurEffect(): void {
+	public blurEffect(): void {
 		if (!this._textPlaneNewYear || !this._textPlaneRabit) return;
 		if (this._focusEffectTimeline) this._focusEffectTimeline.kill();
 		this._focusEffectTimeline = gsap.timeline({ onStart: this._stopRabitEffect.bind(this) });
