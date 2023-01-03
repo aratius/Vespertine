@@ -29,6 +29,7 @@ export default class Index extends Component {
 				if(this._cursorMoveTween) this._cursorMoveTween.kill()
 				this._cursorMoveTween = gsap.to(this._cursor, {left: e.clientX-8, top: e.clientY-8, duration: .15, ease: "expo.out"})
 			}
+			if(this._webgl) this._webgl.setMousePosition(e.clientX, e.clientY)
 		})
 		window.addEventListener("mousedown", e => {
 			if(this._cursor) {
@@ -43,6 +44,19 @@ export default class Index extends Component {
 				this._cursorSizeTween = gsap.to(this._cursor, {width: 16, height: 16, borderRadius: 8, duration: .3, ease: "expo.out"})
 			}
 			if(this._webgl) this._webgl.blurEffect()
+		})
+		window.addEventListener("touchstart", e => {
+			if(e.touches.length > 0) {
+				if(this._webgl) this._webgl.focusEffect()
+			}
+		})
+		window.addEventListener("touchmove", e => {
+			if(e.touches.length > 0) if(this._webgl) this._webgl.setMousePosition(e.touches[0].clientX, e.touches[0].clientY)
+		})
+		window.addEventListener("touchend", e => {
+			if(e.touches.length == 0) {
+				if(this._webgl) this._webgl.blurEffect()
+			}
 		})
     }
 
@@ -88,7 +102,7 @@ export default class Index extends Component {
 					description=""
 					twitterId=""
 				/>
-				<span className={styles.cursor} ref={this._onRefCursor}></span>
+				<span className={`${styles.cursor} ${styles.pc}`} ref={this._onRefCursor}></span>
                 <canvas ref={this._onRefCanvas}></canvas>
             </div>
         )

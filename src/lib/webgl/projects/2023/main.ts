@@ -44,7 +44,7 @@ export default class Main extends WebGLBase {
 		this._renderer!.shadowMap.enabled = true;
 
 		this._cameraPosition = new Vector3(0, .2, .5);
-		_PerspectiveCamera.perspective = 500;
+		_PerspectiveCamera.perspective = this._getPerspective("blur");
 		this._camera?.position.set(this._cameraPosition.x, this._cameraPosition.y, this._cameraPosition.z);
 		this._camera?.lookAt(0, .2, -.5);
 		this._camera?.fillScreen();
@@ -142,10 +142,6 @@ export default class Main extends WebGLBase {
 		this._loadTextPlane();
 		this._loadModel();
 
-		window.addEventListener("mousemove", e => {
-			this._mousePosition = new Vector2(e.clientX / innerWidth, e.clientY / innerHeight);
-		});
-
 	}
 
 	protected _deInitChild(): void {
@@ -193,7 +189,7 @@ export default class Main extends WebGLBase {
 						}
 					})
 						.to(this._cameraPosition, { x: 0, y: .1, z: .2 }, 0)
-						.to(_PerspectiveCamera, { perspective: 350 }, 0)
+						.to(_PerspectiveCamera, { perspective: this._getPerspective("focus") }, 0)
 						.to(this._pointLight.position, { z: .1 }, 0)
 					, 0)
 				.add(
@@ -234,7 +230,7 @@ export default class Main extends WebGLBase {
 				}
 			})
 				.to(this._cameraPosition, { x: 0, y: .2, z: .5 }, 0)
-				.to(_PerspectiveCamera, { perspective: 500 }, 0)
+				.to(_PerspectiveCamera, { perspective: this._getPerspective("blur") }, 0)
 				.to(this._pointLight.position, { z: .3 }, 0)
 			, 0);
 		this._focusEffectTimeline.add(
@@ -242,6 +238,10 @@ export default class Main extends WebGLBase {
 				.to(this._textPlaneRabit.material, { opacity: 0, ease: "expo.out" }, 0)
 				.to(this._textPlaneNewYear.material, { opacity: 0, ease: "expo.out", }, 0)
 			, 0);
+	}
+
+	public setMousePosition(x: number, y: number) {
+		this._mousePosition = new Vector2(x / innerWidth, y / innerHeight);
 	}
 
 	private _startRabitEffect(): void {
@@ -289,6 +289,12 @@ export default class Main extends WebGLBase {
 				.to(distMat.uniforms.uPower, { value: 0, duration: .5 }, 0)
 				.to(distMat.uniforms.uAmp, { value: 1, duration: .5 }, 0)
 		);
+	}
+
+	private _getPerspective(type: "focus" | "blur") {
+		if (type == "focus") return 350 * (innerWidth / 1000);
+		if (type == "blur") return 500 * (innerWidth / 1000);
+		return 1;
 	}
 
 	private async _loadTextPlane(): Promise<void> {
