@@ -80,7 +80,7 @@ export default class Main extends WebGLBase {
 		this._composer.addPass(fxaaPass);
 
 		const ambientLight = new AmbientLight(0xffffff, .7);
-		const spotLight = new SpotLight(0xffffff, .1, 10, Math.PI / 4, 1, 3);
+		const spotLight = new SpotLight(0xffffff, .3, 10, Math.PI / 4, 1, 3);
 		spotLight.castShadow = true;
 		spotLight.shadow.blurSamples = 16;
 		spotLight.shadow.radius = 10;
@@ -95,7 +95,7 @@ export default class Main extends WebGLBase {
 		spotLight2.position.set(-.2, .4, -.2);
 		spotLight2.lookAt(0, 0, 0);
 		const spotLight3 = spotLight.clone();
-		spotLight3.intensity = .3;
+		spotLight3.intensity = .35;
 		spotLight3.position.set(0, .3, .25);
 		spotLight3.lookAt(0, 0, 0);
 		this._scene?.add(ambientLight, spotLight1, spotLight2, spotLight3);
@@ -280,7 +280,7 @@ export default class Main extends WebGLBase {
 	}
 
 	private async _loadTextPlane(): Promise<void> {
-		const [textureNewYear, textureRabit] = await Promise.all([loadTexture("/images/2023/newyear.png"), loadTexture("/images/2023/rabit.png")]);
+		const [textureNewYear, textureRabit] = await Promise.all([loadTexture("/images/2023/newYear.png"), loadTexture("/images/2023/rabit.png")]);
 		const textPlane = new Mesh(
 			new PlaneBufferGeometry(1, 1, 1),
 			new MeshBasicMaterial({ transparent: true, opacity: 0 })
