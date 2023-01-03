@@ -97,7 +97,7 @@ export default class Index extends Component {
 				/>
 				<Head
 					title="2023"
-					ogImgPath="https://vesp.aualrxse.com/2023/og.png"
+					ogImgPath="https://vesp.aualrxse.com/images/2023/og.png"
 					ogUrl="https://vesp.aualrxse.com/projects/2023/"
 					description="Happy New Year | 2023"
 					twitterId="aualrxse"
