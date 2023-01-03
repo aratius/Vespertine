@@ -75,7 +75,7 @@ export default class Index extends Component {
     public render(): ReactElement {
         return (
             <div className={styles.container}>
-				<Info
+				{/* <Info
 					title="2023"
 					shareText=""
 					shareUrl=""
@@ -94,7 +94,7 @@ export default class Index extends Component {
 							}
 						]
 					]}
-				/>
+				/> */}
 				<Head
 					title="2023"
 					ogImgPath=""
