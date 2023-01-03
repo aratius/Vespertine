@@ -15,6 +15,7 @@ import _PerspectiveCamera from "../../common/perspectiveCamera";
 import { loadTexture } from "../../common/utils";
 import PointLightMeshMaterial from "./material/pointLightMeshMaterial";
 import RabitDistanceMaterial from "./material/rabitDistanceMaterial";
+import { DisplayShader, displayShader } from "./material/displayShader";
 
 export default class Main extends WebGLBase {
 
@@ -30,6 +31,7 @@ export default class Main extends WebGLBase {
 	private _mousePosition: Vector2 = new Vector2(0, 0);
 	private _cameraPosition: Vector3 = new Vector3(0, 0, 0);
 	private _rabitEffectTimeline?: GSAPTimeline;
+	private _customShaderPass?: ShaderPass;
 
 	constructor(canvas: HTMLCanvasElement) {
 		super(canvas, {
@@ -71,6 +73,9 @@ export default class Main extends WebGLBase {
 		fxaaPass.material.uniforms["resolution"].value.x = 1 / innerWidth * this._renderer!.getPixelRatio();
 		fxaaPass.material.uniforms["resolution"].value.y = 1 / innerHeight * this._renderer!.getPixelRatio();
 
+		const customShaderPass = new ShaderPass(displayShader);
+		this._customShaderPass = customShaderPass;
+
 		const renderPass = new RenderPass(this._scene!, this._camera!);
 
 		this._composer.addPass(renderPass);
@@ -78,6 +83,7 @@ export default class Main extends WebGLBase {
 		this._composer.addPass(savePass);
 		this._composer.addPass(outputPass);
 		this._composer.addPass(fxaaPass);
+		this._composer.addPass(customShaderPass);
 
 		const ambientLight = new AmbientLight(0xffffff, .7);
 		const spotLight = new SpotLight(0xffffff, .3, 10, Math.PI / 4, 1, 3);
@@ -158,6 +164,7 @@ export default class Main extends WebGLBase {
 		this._camera?.lookAt(0, .2, -.5);
 
 		if (this._rabit) (this._rabit?.customDistanceMaterial as ShaderMaterial).uniforms.uTime = new Uniform(this._elapsedTime);
+		if (this._customShaderPass) this._customShaderPass.uniforms.uTime = new Uniform(this._elapsedTime);
 
 		this._composer?.render();
 	}
