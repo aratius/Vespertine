@@ -1,0 +1,58 @@
+#include <common>
+
+varying vec2 vUv;
+uniform vec2 uResolution;
+uniform float uScrollPos;
+uniform float uWidthGap;
+uniform float uTransparency;
+uniform sampler2D uSampler;
+
+float scale(float v, float from1, float from2, float to1, float to2) {
+  return (v - from1) * (to2 - to1) / (from2 - from1) + to1;
+}
+
+float arcQuarterY(float x) {
+    return sqrt(1.0 - x * x);
+}
+
+// TODO: point lightの実装
+void main() {
+	vec2 uv = vUv;
+	vec2 frontUv = uv;
+	vec2 backUv = uv;
+	// vec4 color = vec4(uv.x, fract(uv.y * 20.), 1., 1.);
+	vec4 color = vec4(0.);
+
+	// 上に向かって萎んでいく
+	float widthScale = 1.;
+	float widthGap = uWidthGap;
+	float thresholdY = 1. - widthGap / uResolution.y;
+	float thresholdX = 1. - (widthGap * 2.) / uResolution.x;
+	if(frontUv.y > thresholdY) {
+		float ratio = scale(frontUv.y, thresholdY, 1., 0., 1.);
+		// widthScale /= cos(ratio * PI * 0.5);
+		widthScale *= arcQuarterY(ratio);
+		widthScale = scale(widthScale, 1., 0., 1., thresholdX);
+
+		frontUv.x -= 0.5;
+		frontUv.x /= widthScale;
+		frontUv.x += 0.5;
+	}
+
+	frontUv.y -= uScrollPos;
+	if(frontUv.x >= 0. && frontUv.x <= 1. && frontUv.y >= 0. && frontUv.y <= 1.) {
+		color += texture2D(uSampler, frontUv);
+	}
+
+	backUv.x -= 0.5;
+	backUv.x /= thresholdX;
+	backUv.x += 0.5;
+	backUv.y = 1. - backUv.y;
+	backUv.y -= uScrollPos - 1.;
+	if(backUv.x >= 0. && backUv.x <= 1. && backUv.y >= 0. && backUv.y <= 1.) {
+		vec4 backColor = texture2D(uSampler, backUv);
+		backColor.a *= uTransparency;
+		color += backColor * step(color.a, 0.);
+	}
+	gl_FragColor = color;
+}
