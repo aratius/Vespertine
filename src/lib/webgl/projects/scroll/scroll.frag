@@ -24,18 +24,17 @@ void main() {
 	vec4 color = vec4(0.);
 
 	// 上に向かって萎んでいく
-	float widthScale = 1.;
+	float widthScaleFront = 1.;
 	float widthGap = uWidthGap;
 	float thresholdY = 1. - widthGap / uResolution.y;
 	float thresholdX = 1. - (widthGap * 2.) / uResolution.x;
 	if(frontUv.y > thresholdY) {
 		float ratio = scale(frontUv.y, thresholdY, 1., 0., 1.);
-		// widthScale /= cos(ratio * PI * 0.5);
-		widthScale *= arcQuarterY(ratio);
-		widthScale = scale(widthScale, 1., 0., 1., thresholdX);
+		widthScaleFront *= arcQuarterY(ratio);
+		widthScaleFront = scale(widthScaleFront, 1., 0., 1., thresholdX);
 
 		frontUv.x -= 0.5;
-		frontUv.x /= widthScale;
+		frontUv.x /= widthScaleFront;
 		frontUv.x += 0.5;
 	}
 
@@ -44,8 +43,19 @@ void main() {
 		color += texture2D(uSampler, frontUv);
 	}
 
+	// 裏側
+	float widthScaleBackMax = thresholdX - (1. - thresholdX);
+	float widthScaleBack = 1.;
+	if(backUv.y > thresholdY) {
+		float ratio = scale(backUv.y, thresholdY, 1., 0., 1.);
+		widthScaleBack *= arcQuarterY(ratio);
+		// widthScaleBack *= ratio;
+		widthScaleBack = scale(widthScaleBack, 0., 1., thresholdX, widthScaleBackMax);
+	} else {
+		widthScaleBack = widthScaleBackMax;
+	}
 	backUv.x -= 0.5;
-	backUv.x /= thresholdX;
+	backUv.x /= widthScaleBack;
 	backUv.x += 0.5;
 	backUv.y = 1. - backUv.y;
 	backUv.y -= uScrollPos - 1.;
