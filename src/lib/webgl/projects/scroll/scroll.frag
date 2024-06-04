@@ -69,9 +69,18 @@ void main() {
 	float edgeWidth = 2.;
 	float edgethresholdX = (edgeWidth * 2.) / uResolution.x;
 	if(
-		((frontUv.x < edgethresholdX && frontUv.x > 0.) || (frontUv.x > (1. - edgethresholdX) && frontUv.x < 1.)) ||
-		((backUv.x < edgethresholdX && backUv.x > 0.) || (backUv.x > (1. - edgethresholdX) && backUv.x < 1.))
-	) color = vec4(vec3(0.), 1.);
+		(frontUv.x < edgethresholdX && frontUv.x > 0.) ||
+		(frontUv.x > (1. - edgethresholdX) && frontUv.x < 1.)
+	) {
+		color.a = 1.;
+		color.rgb = vec3(0.);
+	}
+	if(
+		(backUv.x < edgethresholdX && backUv.x > 0.) ||
+		(backUv.x > (1. - edgethresholdX) && backUv.x < 1.)
+	) {
+		if(color.a <= 0.) color = vec4(vec3(0.), uTransparency * scale(backUv.y, 1., 0., 0., 1.));
+	}
 
 	gl_FragColor = color;
 }
