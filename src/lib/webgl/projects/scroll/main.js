@@ -34,7 +34,8 @@ export default class Main extends WebGLBase {
 	async _initPlaceHolderStage() {
 
 		this._renderer.shadowMap.enabled = true;
-		this._renderer.setClearColor(0x4342c);
+		// this._renderer.setClearColor(0x4342c);
+		this._renderer.setClearColor(0xffffff);
 		this._camera.position.set(0, 5, 100);
 		this._camera.lookAt(0, 0, 0);
 
