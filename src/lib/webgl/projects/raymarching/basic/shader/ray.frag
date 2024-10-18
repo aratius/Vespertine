@@ -96,17 +96,16 @@ float sdf(vec3 p) {
 	float sphere = sdSphere(p + vec3(0.), 0.7);
 	o = mix(box, sphere, sin(u_time)*0.5+0.5);
 
-	for(float i = 0.; i < 10.; i++) {
+	for(float i = 0.; i < 20.; i++) {
 		float randOff = random(vec2(i));
 		vec3 b_pos = p + vec3(sin(randOff * 6.28), cos(randOff * 6.28), 0.) * sin(u_time + randOff) * 2.;
-		float bullet = sdSphere(b_pos, 0.2);
+		float bullet = sdSphere(b_pos, 0.1);
 		o = smin(o, bullet, 0.5);
 	}
 
 	float mouse_sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
 	o = smin(o, mouse_sphere , 0.4);
-	float face = sd_face(p);
-	return face;
+	return o;
 }
 
 // 法線を求める
@@ -124,7 +123,7 @@ vec3 calc_normal(vec3 p) {
 void main() {
 	// 正規化
 	vec2 uv = (gl_FragCoord.xy * 2.0 - u_res) / min(u_res.x, u_res.y);
-	vec3 cam_pos = vec3(0., 0., 3.);
+	vec3 cam_pos = vec3(0., 0., 2.);
 
 	// 各ピクセルにRayを投げる？ z-1はカメラ位置が正の値であるため
 	vec3 ray = normalize(vec3(uv, -1.));

@@ -25,6 +25,14 @@ export default class Index extends Component {
 	render() {
 		return (
 			<div className={styles.container}>
+				<Head
+					title="scroll"
+					ogImgPath=""
+					ogUrl=""
+					description=""
+					twitterId=""
+				/>
+
 				<canvas ref={this._onRefCanvas}></canvas>
 
 				<div style={{ height: "100vh" }}></div>
