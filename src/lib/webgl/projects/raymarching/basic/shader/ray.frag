@@ -4,6 +4,10 @@ uniform sampler2D u_matcaps;
 uniform vec2 u_mouse;
 uniform vec2 u_res;
 
+float remap(float v, float x1, float x2, float y1, float y2) {
+    return y1 + (v - x1) * (y2 - y1) / (x2 - x1);
+}
+
 vec2 get_matcap(vec3 eye, vec3 normal) {
   vec3 reflected = reflect(eye, normal);
   float m = 2.8284271247461903 * sqrt( reflected.z+1.0 );
@@ -25,11 +29,6 @@ mat4 rotation3d(vec3 axis, float angle) {
 	);
 }
 
-float sd_sphere(vec3 p) {
-  // 球の半径を1としたときの、点pからの距離を計算して返す
-  return length(p) - 0.3;
-}
-
 float sd_cylinder(vec3 p, vec3 u) {
   // 円柱の半径を1、長さを1としたときの、点pからの距離を計算して返す
   return length(vec2(dot(p, u), length(p - dot(p, u) * u))) - .3;
@@ -38,22 +37,6 @@ float sd_cylinder(vec3 p, vec3 u) {
 float sd_box(vec3 p, vec3 b) {
   // 立方体の一辺の長さをbとしたときの、点pからの距離を計算して返す
   return length(max(abs(p) - b, 0.0));
-}
-
-float sd_face(vec3 p) {
-  // 目の形を表すSigned distance function
-  float eye_l = sd_sphere(p - vec3(0.4, 0.1, 0.5));
-  float eye_r = sd_sphere(p - vec3(-0.4, 0.1, 0.5));
-  // 鼻の形を表すSigned distance function
-  float nose = sd_cylinder(p - vec3(0, 0, 0.5), vec3(0, 0, 1));
-  // 口の形を表すSigned distance function
-  float mouth = sd_box(p - vec3(0, -0.2, 0.5), vec3(0.1, 0.1, 0.1));
-  // 耳の形を表すSigned distance function
-  float ear_l = sd_sphere(p - vec3(0.7, 0.2, 0.5));
-  float ear_r = sd_sphere(p - vec3(-0.7, 0.2, 0.5));
-
-  // 上記の部分からなる人間の顔の形を表すSigned distance function
-  return min(min(min(min(eye_l, eye_r), nose), mouth), min(ear_l, ear_r));
 }
 
 // 回転
@@ -77,9 +60,8 @@ float random (vec2 st) {
 }
 
 // pos, size
-float sdSphere( vec3 p, float s )
-{
-  return length(p)-s;
+float sdSphere(vec3 p, float s) {
+    return length(p) - s;
 }
 
 float sdBox( vec3 p, vec3 b )
@@ -89,22 +71,23 @@ float sdBox( vec3 p, vec3 b )
 }
 
 float sdf(vec3 p) {
-	vec3 p_box = rotate(p, vec3(1.), 1. + u_time/5.);
+	vec3 p_box = rotate(p, vec3(1., sin(u_time), sin(u_time*0.9)), 1. + u_time*10.);
 
 	float o = 0.;
 	float box = smin(sdBox(p_box, vec3(0.5)), sdSphere(p, 0.3), 0.5);
 	float sphere = sdSphere(p + vec3(0.), 0.7);
 	o = mix(box, sphere, sin(u_time)*0.5+0.5);
 
-	for(float i = 0.; i < 20.; i++) {
+	for(float i = 0.; i < 10.; i++) {
 		float randOff = random(vec2(i));
-		vec3 b_pos = p + vec3(sin(randOff * 6.28), cos(randOff * 6.28), 0.) * sin(u_time + randOff) * 2.;
-		float bullet = sdSphere(b_pos, 0.1);
-		o = smin(o, bullet, 0.5);
+		float x = sin(randOff * 6.28 + u_time * 3.) * 0.1 + sin(randOff * 4.28 + u_time * 1.) * .5;
+		float y = fract(randOff + u_time*3. * remap(randOff, 0., 1., 0.9, 1.)) * 2.;
+		float z = cos(randOff * 6.28 + u_time * 3.) * 0.1 + cos(randOff * 4.28 + u_time * 1.) * .5;
+		vec3 b_pos = p + vec3(x, -y, z);
+		float size = y < 0.2 ? remap(y, 0., .2, 0., 0.1) : remap(y, 0.2, 2., 0.1, 0.);
+		float bullet = sdSphere(b_pos, size);
+		if(size > 0.) o = smin(o, bullet, 0.5);
 	}
-
-	float mouse_sphere = sdSphere(p + vec3(u_mouse*2., 0.), 0.5);
-	o = smin(o, mouse_sphere , 0.4);
 	return o;
 }
 
@@ -123,7 +106,7 @@ vec3 calc_normal(vec3 p) {
 void main() {
 	// 正規化
 	vec2 uv = (gl_FragCoord.xy * 2.0 - u_res) / min(u_res.x, u_res.y);
-	vec3 cam_pos = vec3(0., 0., 2.);
+	vec3 cam_pos = vec3(0., (sin(u_time*3.)+sin(u_time*0.9))*0.2, 2.);
 
 	// 各ピクセルにRayを投げる？ z-1はカメラ位置が正の値であるため
 	vec3 ray = normalize(vec3(uv, -1.));
@@ -142,7 +125,7 @@ void main() {
 	}
 
 	float dist = length(uv);
-	vec3 bg = mix(vec3(0.), vec3(0.3), 1. - dist);
+	vec3 bg = vec3(0.);
 
 	vec3 color = bg;
 	if(t < t_max) {
@@ -160,8 +143,8 @@ void main() {
 		float fresnel = pow(1. + dot(ray, normal), 3.);
 		color = mix(color, bg, fresnel);
 
-		color.rgb *= diff;
+		// color.rgb *= diff;
 	}
 
-	gl_FragColor = vec4(color, 1.);
+	gl_FragColor = vec4(color, ceil(color.r));
 }
