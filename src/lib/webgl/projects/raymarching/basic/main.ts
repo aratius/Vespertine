@@ -17,7 +17,7 @@ export default class Main extends WebGLBase {
 	}
 
 	protected async _initChild(): Promise<void> {
-		const matcaps = await loadTexture("/images/matcaps/skin.png");
+		const matcaps = await loadTexture("/images/matcaps/skinBlood2.jpg");
 		const geo = new PlaneBufferGeometry(innerWidth, innerHeight, 1, 1);
 		const mat = new RaymarchingMaterial(matcaps);
 		const mesh = new Mesh(geo, mat);

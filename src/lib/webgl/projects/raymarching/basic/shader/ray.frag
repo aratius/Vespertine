@@ -70,13 +70,25 @@ float sdBox( vec3 p, vec3 b )
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
 }
 
-float sdf(vec3 p) {
-	vec3 p_box = rotate(p, vec3(1., sin(u_time), sin(u_time*0.9)), 1. + u_time*10.);
+float opTwistBox(vec3 p, vec3 b)
+{
+    const float k = 1.0; // or some other amount
+    float c = cos(k*p.y);
+    float s = sin(k*p.y);
+    mat2  m = mat2(c,-s,s,c);
+    vec3  q = vec3(m*p.xz,p.y);
+	return sdBox(q, b);
+}
+
+float sdf(vec3 p, float offsetScale) {
+	vec3 p_box_sphere = p;
+	p_box_sphere = rotate(p_box_sphere, vec3(1., sin(u_time), sin(u_time*0.9)), 1. + u_time*10.);
 
 	float o = 0.;
-	float box = smin(sdBox(p_box, vec3(0.5)), sdSphere(p, 0.3), 0.5);
-	float sphere = sdSphere(p + vec3(0.), 0.7);
-	o = mix(box, sphere, sin(u_time)*0.5+0.5);
+	float box = smin(opTwistBox(p_box_sphere, vec3(0.5)), sdSphere(p, 0.3), 0.5 * offsetScale);
+	float sphere = sdSphere(p_box_sphere + vec3(0.), 0.7 * offsetScale);
+	float spherebox = mix(box, sphere, sin(u_time)*0.4+0.4);
+	o += spherebox;
 
 	for(float i = 0.; i < 10.; i++) {
 		float randOff = random(vec2(i));
@@ -85,10 +97,14 @@ float sdf(vec3 p) {
 		float z = cos(randOff * 6.28 + u_time * 3.) * 0.1 + cos(randOff * 4.28 + u_time * 1.) * .5;
 		vec3 b_pos = p + vec3(x, -y, z);
 		float size = y < 0.2 ? remap(y, 0., .2, 0., 0.1) : remap(y, 0.2, 2., 0.1, 0.);
-		float bullet = sdSphere(b_pos, size);
+		float bullet = sdSphere(b_pos, size * offsetScale);
 		if(size > 0.) o = smin(o, bullet, 0.5);
 	}
 	return o;
+}
+
+float sdf(vec3 p) {
+	return sdf(p, 1.);
 }
 
 // 法線を求める
@@ -102,6 +118,24 @@ vec3 calc_normal(vec3 p) {
 	));
 }
 
+float raymarching(vec3 cam_pos, vec3 ray, float t_max, float offsetScale){
+	// Rayの位置初期化
+	vec3 ray_pos = cam_pos;
+	float t = 0.;
+	for(int i = 0; i < 256; i++) {
+		vec3 pos = cam_pos + t * ray;
+		float h = sdf(pos, offsetScale);
+		// rayが衝突した
+		if(h < 0.0001 || t > t_max) break;
+
+		t += h;
+	}
+	return t;
+}
+
+float raymarching(vec3 cam_pos, vec3 ray, float t_max){
+	return raymarching(cam_pos, ray, t_max, 1.);
+}
 
 void main() {
 	// 正規化
@@ -109,25 +143,13 @@ void main() {
 	vec3 cam_pos = vec3(0., (sin(u_time*3.)+sin(u_time*0.9))*0.2, 2.);
 
 	// 各ピクセルにRayを投げる？ z-1はカメラ位置が正の値であるため
-	vec3 ray = normalize(vec3(uv, -1.));
-
-	// Rayの位置初期化
-	vec3 ray_pos = cam_pos;
-	float t = 0.;
 	float t_max = 5.;
-	for(int i = 0; i < 256; i++) {
-		vec3 pos = cam_pos + t * ray;
-		float h = sdf(pos);
-		// rayが衝突した
-		if(h < 0.0001 || t > t_max) break;
+	vec3 ray = normalize(vec3(uv, -1.));
+	float t = raymarching(cam_pos, ray, t_max);
+	vec3 rayMosaic = normalize(vec3(round(uv * 20.) / 20., -1.));
+	float tMosaic = raymarching(cam_pos, rayMosaic, t_max, 1.1);
 
-		t += h;
-	}
-
-	float dist = length(uv);
-	vec3 bg = vec3(0.);
-
-	vec3 color = bg;
+	vec3 color = vec3(1.);
 	if(t < t_max) {
 		vec3 pos = cam_pos + t * ray;
 		color = vec3(1.);
@@ -139,12 +161,8 @@ void main() {
 		// matcap 環境マップ的なこと
 		vec2 matcap_uv = get_matcap(ray, normal);
 		color = texture2D(u_matcaps, matcap_uv).rgb;
-
-		float fresnel = pow(1. + dot(ray, normal), 3.);
-		color = mix(color, bg, fresnel);
-
-		// color.rgb *= diff;
 	}
 
-	gl_FragColor = vec4(color, ceil(color.r));
+	float alpha = tMosaic > t_max ? mod(floor(u_time / 5.), 2.) + 0. : 1.;
+	gl_FragColor = vec4(color, 1.) * alpha;
 }
